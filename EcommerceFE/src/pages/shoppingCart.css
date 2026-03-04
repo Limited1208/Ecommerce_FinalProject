@@ -1,0 +1,37 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap');
+
+        .cart-root { font-family: 'DM Sans', sans-serif; }
+        .heading { font-family: 'Playfair Display', serif; }
+
+        .item-row {
+            transition: opacity 0.35s ease, transform 0.35s ease, max-height 0.4s ease;
+        }
+        .item-row.removing {
+            opacity: 0;
+            transform: translateX(24px);
+        }
+
+        .qty-btn {
+            transition: background 0.15s, transform 0.1s;
+        }
+        .qty-btn:hover { background: #2c2c2c; color: #f5f0eb; transform: scale(1.08); }
+        .qty-btn:active { transform: scale(0.95); }
+
+        .remove-btn { transition: color 0.2s, transform 0.2s; }
+        .remove-btn:hover { color: #c0392b; transform: scale(1.1); }
+
+        .checkout-btn {
+            background: #2c2c2c;
+            transition: background 0.25s, letter-spacing 0.25s, transform 0.15s;
+        }
+        .checkout-btn:hover {
+            background: #111;
+            letter-spacing: 0.12em;
+        }
+        .checkout-btn:active { transform: scaleY(0.97); }
+
+        .progress-bar-fill {
+            transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .promo-input:focus { outline: none; border-color: #2c2c2c; }
