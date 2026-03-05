@@ -45,7 +45,7 @@ export default function CartItem({ item, onUpdateQty, onRemove, isRemoving }) {
                             +
                         </button>
                     </div>
-                    <p className="heading text-[15px] text-[#ff6b00]">${(item.price * item.qty).toLocaleString()}</p>
+                    <p className="heading text-[15px] text-[#ff6b00]">${(item.price * item.qty).toFixed(2)}</p>
                 </div>
             </div>
         </div>
