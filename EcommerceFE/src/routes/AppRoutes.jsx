@@ -4,7 +4,7 @@ import Home from "../pages/homePage";
 import ShoppingCart from "../pages/shoppingCart";
 import CollectionPage from "../pages/collectionPage";
 import SalePage from "../pages/salePage";
-import ProductPage from "../pages/productPage";
+import ProductPage from "../pages/ProductPage";
 // import LoginPage from "../pages/loginPage";
 // import RegisterPage from "../pages/registerPage";
 
