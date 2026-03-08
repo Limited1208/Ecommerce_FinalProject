@@ -5,8 +5,8 @@ import ShoppingCart from "../pages/shoppingCart";
 import CollectionPage from "../pages/collectionPage";
 import SalePage from "../pages/salePage";
 import ProductPage from "../pages/ProductPage";
-// import LoginPage from "../pages/loginPage";
-// import RegisterPage from "../pages/registerPage";
+import LoginPage from "../pages/loginPage";
+import RegisterPage from "../pages/registerPage";
 
 function AppRoutes() {
   return (
@@ -112,8 +112,8 @@ function AppRoutes() {
           <Route path="/sale" element={<SalePage />} />
 
         </Route>
-        {/* <Route path="/login"    element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} /> */}
+        <Route path="/login"    element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
 
       </Routes>
     </BrowserRouter>
