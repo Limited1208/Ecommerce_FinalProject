@@ -1,10 +1,10 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { SHIPPING_THRESHOLD } from "../data/constants";
 import CartItem from "./CartItem";
 
-// Props aligned with Layout.jsx:
-// open, onClose, cart, updateQty, removeItem, onOrderComplete
 export default function CartPanel({ open, onClose, cart, updateQty, removeItem, onOrderComplete }) {
+    const navigate = useNavigate();
     const [promoCode, setPromoCode]       = useState("");
     const [promoApplied, setPromoApplied] = useState(false);
     const [removingId, setRemovingId]     = useState(null);
@@ -25,16 +25,23 @@ export default function CartPanel({ open, onClose, cart, updateQty, removeItem, 
     const cartCount   = cart.reduce((s, i) => s + i.qty, 0);
     const progressPct = Math.min((subtotal / SHIPPING_THRESHOLD) * 100, 100);
 
-    const fmt = (n) => `$${n.toFixed(2)}`;
+    const fmt = (n) => `$${Number(n).toFixed(2)}`;
 
     const handleCheckout = () => {
         onOrderComplete?.({ cart, subtotal, discount, shipping, total, promoApplied, promoCode });
+        onClose();
+        navigate("/checkout");
     };
 
     if (!open) return null;
 
     return (
         <>
+            <style>{`
+                @keyframes fadeIn  { from { opacity: 0 } to { opacity: 1 } }
+                @keyframes slideIn { from { transform: translateX(100%) } to { transform: translateX(0) } }
+            `}</style>
+
             {/* Backdrop */}
             <div
                 className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
@@ -44,9 +51,8 @@ export default function CartPanel({ open, onClose, cart, updateQty, removeItem, 
 
             {/* Panel */}
             <div
-                className="fixed right-0 top-0 h-full w-full max-w-md z-50 flex flex-col border-l border-[#1e1000]"
+                className="fixed right-0 top-0 h-full w-full max-w-md z-50 flex flex-col bg-[#0d0800] border-l border-[#1e1000]"
                 style={{
-                    background: "#0d0800",
                     animation: "slideIn 0.35s cubic-bezier(0.22,1,0.36,1)",
                     boxShadow: "-8px 0 60px rgba(0,0,0,0.6)",
                 }}
@@ -59,10 +65,7 @@ export default function CartPanel({ open, onClose, cart, updateQty, removeItem, 
                     </div>
                     <button
                         onClick={onClose}
-                        className="w-8 h-8 border border-[#2a1500] rounded flex items-center justify-center transition-all"
-                        style={{ color: "#555" }}
-                        onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#ff6b00"; e.currentTarget.style.color = "#ff6b00"; }}
-                        onMouseLeave={(e) => { e.currentTarget.style.borderColor = "#2a1500"; e.currentTarget.style.color = "#555"; }}
+                        className="w-8 h-8 border border-[#2a1500] rounded flex items-center justify-center text-[#555] transition-all hover:border-[#ff6b00] hover:text-[#ff6b00]"
                     >
                         <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                             <path d="M18 6 6 18M6 6l12 12" />
@@ -79,12 +82,10 @@ export default function CartPanel({ open, onClose, cart, updateQty, removeItem, 
                             <div className="flex justify-between text-xs text-[#444] mb-2">
                                 <span>
                                     Add{" "}
-                                    <span className="text-white font-medium">
-                                        {fmt(SHIPPING_THRESHOLD - subtotal)}
-                                    </span>{" "}
-                                    for free shipping
+                                    <span className="text-white font-medium">{fmt(SHIPPING_THRESHOLD - subtotal)}</span>
+                                    {" "}for free shipping
                                 </span>
-                                <span>{(SHIPPING_THRESHOLD)}</span>
+                                <span>{fmt(SHIPPING_THRESHOLD)}</span>
                             </div>
                             <div className="h-1 bg-[#1e1000] rounded-full overflow-hidden">
                                 <div
@@ -98,11 +99,9 @@ export default function CartPanel({ open, onClose, cart, updateQty, removeItem, 
                             </div>
                         </div>
                     )}
+
                     {shipping === 0 && cart.length > 0 && (
-                        <div
-                            className="text-xs tracking-wide rounded-xl px-4 py-3 flex items-center gap-2"
-                            style={{ background: "#0d1a00", border: "1px solid #1a3000", color: "#4ade80" }}
-                        >
+                        <div className="text-xs tracking-wide rounded-xl px-4 py-3 flex items-center gap-2 bg-[#0d1a00] border border-[#1a3000] text-green-400">
                             ⚡ Free shipping unlocked!
                         </div>
                     )}
@@ -133,7 +132,7 @@ export default function CartPanel({ open, onClose, cart, updateQty, removeItem, 
 
                 {/* Footer */}
                 {cart.length > 0 && (
-                    <div className="px-6 py-5 border-t border-[#1e1000]" style={{ background: "#0d0800" }}>
+                    <div className="px-6 py-5 border-t border-[#1e1000] bg-[#0d0800]">
 
                         {/* Promo input */}
                         <div className="flex gap-2 mb-4">
@@ -142,18 +141,12 @@ export default function CartPanel({ open, onClose, cart, updateQty, removeItem, 
                                 value={promoCode}
                                 onChange={(e) => setPromoCode(e.target.value)}
                                 placeholder="Promo code (SAVE10)"
-                                className="flex-1 rounded-lg px-3 py-2 text-xs text-white focus:outline-none transition-colors placeholder-[#333]"
-                                style={{ background: "#110700", border: "1px solid #2a1500" }}
-                                onFocus={(e) => e.currentTarget.style.borderColor = "#ff6b00"}
-                                onBlur={(e)  => e.currentTarget.style.borderColor = "#2a1500"}
+                                className="flex-1 rounded-lg px-3 py-2 text-xs text-white bg-[#110700] border border-[#2a1500] focus:outline-none focus:border-[#ff6b00] transition-colors placeholder-[#333]"
                             />
                             <button
                                 onClick={applyPromo}
                                 disabled={promoApplied}
-                                className="px-4 py-2 rounded-lg text-xs font-bold transition-all tracking-widest uppercase disabled:opacity-40"
-                                style={{ border: "1px solid #ff6b0044", color: "#ff6b00" }}
-                                onMouseEnter={(e) => { if (!promoApplied) { e.currentTarget.style.background = "#ff6b00"; e.currentTarget.style.color = "#0d0800"; } }}
-                                onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#ff6b00"; }}
+                                className="px-4 py-2 rounded-lg text-xs font-bold tracking-widest uppercase border border-[#ff6b00]/30 text-[#ff6b00] bg-transparent transition-all disabled:opacity-40 hover:bg-[#ff6b00] hover:text-[#0d0800]"
                             >
                                 {promoApplied ? "✓" : "Apply"}
                             </button>
@@ -166,14 +159,14 @@ export default function CartPanel({ open, onClose, cart, updateQty, removeItem, 
                                 <span className="text-white">{fmt(subtotal)}</span>
                             </div>
                             {promoApplied && (
-                                <div className="flex justify-between" style={{ color: "#4ade80" }}>
+                                <div className="flex justify-between text-green-400">
                                     <span>SAVE10 (−10%)</span>
                                     <span>−{fmt(discount)}</span>
                                 </div>
                             )}
                             <div className="flex justify-between">
                                 <span>Shipping</span>
-                                <span style={{ color: shipping === 0 ? "#4ade80" : "#fff" }}>
+                                <span className={shipping === 0 ? "text-green-400" : "text-white"}>
                                     {shipping === 0 ? "Free" : fmt(shipping)}
                                 </span>
                             </div>
@@ -181,15 +174,13 @@ export default function CartPanel({ open, onClose, cart, updateQty, removeItem, 
 
                         <div className="flex justify-between items-baseline mb-4">
                             <span className="heading text-lg text-white">TOTAL</span>
-                            <span className="heading text-2xl" style={{ color: "#ff6b00" }}>
-                                {fmt(total)}
-                            </span>
+                            <span className="heading text-2xl text-[#ff6b00]">{fmt(total)}</span>
                         </div>
 
                         <button
                             onClick={handleCheckout}
-                            className="neon-btn w-full rounded-lg py-3.5 text-xs tracking-widest uppercase font-bold transition-all hover:scale-[1.02]"
-                            style={{ background: "linear-gradient(135deg,#ff6b00,#ff0040)", color: "#fff" }}
+                            className="neon-btn w-full rounded-lg py-3.5 text-xs tracking-widest uppercase font-bold text-white transition-all hover:scale-[1.02]"
+                            style={{ background: "linear-gradient(135deg,#ff6b00,#ff0040)" }}
                         >
                             Checkout ⚡
                         </button>

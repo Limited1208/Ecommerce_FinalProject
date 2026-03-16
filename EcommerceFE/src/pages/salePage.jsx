@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import { useOutletContext } from "react-router-dom";
 import ProductCard from "../components/ProductCard";
 import { useProducts } from "../hooks/useProducts";
+import { usePageTitle } from "../hooks/usePageTitle";
 
 
 function useCountdown(targetDate) {
@@ -29,9 +30,11 @@ const SORT_OPTIONS = [
 ];
 
 export default function SalePage() {
+    usePageTitle("Sale")
     const context = useOutletContext() ?? {};
     const { addToCart = () => {}, openProductModal = () => {} } = context;
     const { products, loading, error } = useProducts();
+
 
     const [sort, setSort]                     = useState("discount");
     const [activeCategory, setActiveCategory] = useState("All");

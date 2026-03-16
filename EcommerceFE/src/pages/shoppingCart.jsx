@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { PRODUCTS, SHIPPING_THRESHOLD } from "../data/constants";
+import { usePageTitle } from "../hooks/usePageTitle";
 
 
 function CartRow({ item, onUpdateQty, onRemove, isRemoving }) {
+    usePageTitle("Your Cart")
     return (
         <div
             className="flex gap-5 p-5"

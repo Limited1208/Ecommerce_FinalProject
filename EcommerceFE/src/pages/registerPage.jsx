@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { usePageTitle } from "../hooks/usePageTitle";
 
 /* ── Reusable password input ── */
 function PasswordInput({ placeholder, value, onChange }) {
@@ -80,6 +81,7 @@ const labelStyle = {
 };
 
 export default function RegisterPage() {
+  usePageTitle("Create Account")
   return (
     <div style={{
       minHeight: "100vh",

@@ -2,11 +2,14 @@ import { useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import ProductCard from "../components/ProductCard";
 import { useProducts } from "../hooks/useProducts";
+import { usePageTitle } from "../hooks/usePageTitle";
 
 export default function CollectionPage({ gender, category, title, subtitle }) {
     const context = useOutletContext() ?? {};
     const { addToCart = () => { }, openProductModal = () => { } } = context;
     const { products, loading, error } = useProducts();
+
+    usePageTitle(title)
 
     // Filter products by category or gender
     const baseProducts = products.filter((p) => {

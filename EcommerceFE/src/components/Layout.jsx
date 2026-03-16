@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
-import Navbar from "./Navbar";
-import Footer from "./Footer";
-import CartPanel from "./CartPanel";
-import Toast from "./Toast";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
+import CartPanel from "../components/CartPanel";
+import Toast from "../components/Toast";
 import { useCart } from "../hooks/useCart";
 
 export default function Layout() {
@@ -60,9 +60,8 @@ export default function Layout() {
                 updateQty={updateQty}
                 removeItem={removeItem}
                 onOrderComplete={(data) => {
-                    setOrderData(data);
-                    setCart([]);
-                    setCartOpen(false);
+                    setOrderData(data);   // save promo/discount info for checkout
+                    setCartOpen(false);   // close panel — do NOT clear cart here
                 }}
             />
 
@@ -166,11 +165,11 @@ function ProductModal({ product, onClose, onAddToCart }) {
                                 background: "linear-gradient(90deg,#ff6b00,#ff0040)",
                                 WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
                             }}>
-                                {(product.price / 1000).toFixed(0)}K VND
+                                {Number(product.price).toFixed(2)}
                             </span>
                             {product.originalPrice && (
                                 <span style={{ fontSize: 14, color: "#664433", textDecoration: "line-through" }}>
-                                    {(product.originalPrice / 1000).toFixed(0)}K
+                                    {Number(product.originalPrice).toFixed(2)}
                                 </span>
                             )}
                         </div>

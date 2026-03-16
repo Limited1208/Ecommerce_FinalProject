@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { useParams, useNavigate, useOutletContext } from "react-router-dom";
 import { PRODUCTS } from "../data/constants";
+import { usePageTitle } from "../hooks/usePageTitle";
 
 function Accordion({ title, children }) {
+    usePageTitle(title)
     const [open, setOpen] = useState(false);
     return (
         <div style={{ borderTop: "1px solid #1e1000" }}>

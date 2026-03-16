@@ -4,15 +4,13 @@ import Hero from "../components/Hero";
 import MarqueeStrip from "../components/MarqueeStrip";
 import ProductGrid from "../components/Productgrid";
 import EditorialBanner from "../components/Editorialbanner";
-import CartPanel from "../components/CartPanel";
-import Toast from "../components/Toast";
-import ShoppingCart from "./shoppingCart";
-import Footer from "../components/Footer";
 import { globalStyles } from "./globalStyles";
+import { usePageTitle } from "../hooks/usePageTitle";
 
 
 export default function App() {
     const { addToCart, openCart, openProductModal } = useOutletContext();
+    usePageTitle('Home')
 
   const scrollToProducts = () =>
     document.getElementById("products")?.scrollIntoView({ behavior: "smooth" });
