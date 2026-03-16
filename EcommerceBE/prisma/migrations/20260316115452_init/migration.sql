@@ -16,13 +16,17 @@ CREATE TYPE "OrderStatus" AS ENUM ('PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERE
 -- CreateEnum
 CREATE TYPE "PaymentStatus" AS ENUM ('PENDING', 'COMPLETED', 'FAILED', 'REFUNDED');
 
+-- CreateEnum
+CREATE TYPE "Provider" AS ENUM ('LOCAL', 'GOOGLE');
+
 -- CreateTable
 CREATE TABLE "users" (
     "id" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "password" TEXT NOT NULL,
-    "fistName" TEXT,
+    "firstName" TEXT,
     "lastName" TEXT,
+    "provider" "Provider" NOT NULL,
     "role" "Role" NOT NULL DEFAULT 'User',
     "refreshToken" TEXT,
     "createAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,

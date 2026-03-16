@@ -1,31 +1,22 @@
 import { useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
+import Navbar    from "../components/Navbar";
+import Footer    from "../components/Footer";
 import CartPanel from "../components/CartPanel";
-import Toast from "../components/Toast";
+import Toast     from "../components/Toast";
 import { useCart } from "../hooks/useCart";
 
 export default function Layout() {
     const navigate = useNavigate();
-    const [cartOpen, setCartOpen] = useState(false);
-    const [searchQuery, setSearchQuery] = useState("");
-    const [orderData, setOrderData] = useState(null);
+    const [cartOpen, setCartOpen]         = useState(false);
+    const [searchQuery, setSearchQuery]   = useState("");
+    const [orderData, setOrderData]       = useState(null);
     const [modalProduct, setModalProduct] = useState(null);
 
-    const {
-        cart, setCart,
-        cartCount,
-        addToCart,
-        updateQty,
-        removeItem,
-        toastMsg,
-    } = useCart();
-
-    const openProductModal = (product) => setModalProduct(product);
+    const { cart, setCart, cartCount, addToCart, updateQty, removeItem, toastMsg } = useCart();
 
     return (
-        <div style={{ minHeight: "100vh", background: "#0d0800", display: "flex", flexDirection: "column" }}>
+        <div className="min-h-screen bg-[#0d0800] flex flex-col">
 
             <Navbar
                 cartCount={cartCount}
@@ -34,25 +25,19 @@ export default function Layout() {
                 onSearch={setSearchQuery}
             />
 
-            <main style={{ flex: 1 }}>
-                <Outlet
-                    context={{
-                        addToCart,
-                        openProductModal,
-                        cart,
-                        setCart,
-                        updateQty,
-                        removeItem,
-                        searchQuery,
-                        orderData,
-                        setOrderData,
-                    }}
-                />
+            <main className="flex-1">
+                <Outlet context={{
+                    addToCart,
+                    openProductModal: setModalProduct,
+                    cart, setCart,
+                    updateQty, removeItem,
+                    searchQuery,
+                    orderData, setOrderData,
+                }} />
             </main>
 
             <Footer />
 
-            {/* CartPanel — open prop controls visibility */}
             <CartPanel
                 open={cartOpen}
                 onClose={() => setCartOpen(false)}
@@ -60,8 +45,8 @@ export default function Layout() {
                 updateQty={updateQty}
                 removeItem={removeItem}
                 onOrderComplete={(data) => {
-                    setOrderData(data);   // save promo/discount info for checkout
-                    setCartOpen(false);   // close panel — do NOT clear cart here
+                    setOrderData(data);
+                    setCartOpen(false);
                 }}
             />
 
@@ -84,151 +69,156 @@ export default function Layout() {
 function ProductModal({ product, onClose, onAddToCart }) {
     const [selectedSize, setSelectedSize] = useState(product.sizes?.[0] ?? null);
 
+    const fmt = (n) => `$${Number(n).toFixed(2)}`;
+
     return (
         <>
             <style>{`
-        @keyframes modalIn {
-          from { opacity: 0; transform: scale(0.95) translateY(16px); }
-          to   { opacity: 1; transform: scale(1)    translateY(0); }
-        }
-        .modal-card { animation: modalIn 0.3s cubic-bezier(0.22,1,0.36,1) both; }
-      `}</style>
+                @keyframes modalIn {
+                    from { opacity: 0; transform: scale(0.95) translateY(16px); }
+                    to   { opacity: 1; transform: scale(1)    translateY(0); }
+                }
+                .modal-card { animation: modalIn 0.3s cubic-bezier(0.22,1,0.36,1) both; }
+            `}</style>
 
             {/* Backdrop */}
             <div
+                className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md"
                 onClick={onClose}
-                style={{
-                    position: "fixed", inset: 0, zIndex: 50,
-                    background: "rgba(0,0,0,0.8)",
-                    backdropFilter: "blur(6px)",
-                }}
             />
 
-            {/* Modal */}
-            <div style={{
-                position: "fixed", inset: 0, zIndex: 51,
-                display: "flex", alignItems: "center", justifyContent: "center",
-                padding: "20px", pointerEvents: "none",
-            }}>
+            {/* Centering shell */}
+            <div className="fixed inset-0 z-51 flex items-center justify-center p-5 pointer-events-none"
+                style={{ zIndex: 51 }}>
                 <div
-                    className="modal-card"
-                    style={{
-                        pointerEvents: "auto",
-                        background: "#130900",
-                        border: "1px solid #2a1500",
-                        borderRadius: 20,
-                        maxWidth: 800, width: "100%",
-                        display: "flex", overflow: "hidden",
-                        boxShadow: "0 40px 100px rgba(0,0,0,0.9), 0 0 60px rgba(255,107,0,0.07)",
-                    }}
+                    className="modal-card pointer-events-auto bg-[#130900] border border-[#2a1500] rounded-[20px] w-full max-w-[800px] flex overflow-hidden"
+                    style={{ boxShadow: "0 40px 100px rgba(0,0,0,0.9), 0 0 60px rgba(255,107,0,0.07)" }}
                 >
                     {/* Image */}
-                    <div style={{ width: 300, flexShrink: 0, position: "relative", background: "#0d0800" }}>
+                    <div className="w-[300px] flex-shrink-0 relative bg-[#0d0800]">
                         <img
                             src={product.image}
                             alt={product.name}
-                            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                            className="w-full h-full object-cover block"
                         />
                         {product.badge && (
-                            <span style={{
-                                position: "absolute", top: 14, left: 14,
-                                background: product.badge === "Sale" ? "#ff0040" : product.badge === "New" ? "#ff6b00" : "#2a1500",
-                                color: "#fff", fontSize: 10, fontWeight: 700,
-                                letterSpacing: "0.12em", textTransform: "uppercase",
-                                padding: "3px 10px", borderRadius: 99,
-                            }}>
+                            <span
+                                className="absolute top-3.5 left-3.5 text-white text-[10px] font-bold tracking-[0.12em] uppercase px-2.5 py-0.5 rounded-full"
+                                style={{
+                                    background: product.badge === "Sale" ? "#ff0040"
+                                              : product.badge === "New"  ? "#ff6b00"
+                                              : "#2a1500",
+                                }}
+                            >
                                 {product.badge}
                             </span>
                         )}
                     </div>
 
                     {/* Content */}
-                    <div style={{ flex: 1, padding: "32px 30px", overflowY: "auto", maxHeight: "82vh" }}>
-                        <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 8 }}>
-                            <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", color: "#664433", padding: 4 }}>
+                    <div className="flex-1 px-8 py-8 overflow-y-auto max-h-[82vh]">
+
+                        {/* Close */}
+                        <div className="flex justify-end mb-2">
+                            <button
+                                onClick={onClose}
+                                className="text-[#664433] hover:text-white transition-colors p-1 bg-transparent border-none cursor-pointer"
+                            >
                                 <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                                     <path d="M18 6 6 18M6 6l12 12" />
                                 </svg>
                             </button>
                         </div>
 
-                        <p style={{ fontSize: 10, letterSpacing: "0.2em", textTransform: "uppercase", color: "#664433", marginBottom: 6 }}>
+                        {/* Category */}
+                        <p className="text-[10px] tracking-[0.2em] uppercase text-[#664433] mb-1.5">
                             {product.category}
                         </p>
-                        <h2 className="heading" style={{ fontSize: 26, color: "#fff", marginBottom: 10, lineHeight: 1.2 }}>
+
+                        {/* Name */}
+                        <h2 className="heading text-[26px] text-white leading-tight mb-2.5">
                             {product.name}
                         </h2>
 
-                        <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 18 }}>
-                            <span className="heading" style={{
-                                fontSize: 22,
-                                background: "linear-gradient(90deg,#ff6b00,#ff0040)",
-                                WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
-                            }}>
-                                {Number(product.price).toFixed(2)}
+                        {/* Price */}
+                        <div className="flex items-baseline gap-2.5 mb-4">
+                            <span
+                                className="heading text-[22px]"
+                                style={{
+                                    background: "linear-gradient(90deg,#ff6b00,#ff0040)",
+                                    WebkitBackgroundClip: "text",
+                                    WebkitTextFillColor: "transparent",
+                                }}
+                            >
+                                {fmt(product.price)}
                             </span>
                             {product.originalPrice && (
-                                <span style={{ fontSize: 14, color: "#664433", textDecoration: "line-through" }}>
-                                    {Number(product.originalPrice).toFixed(2)}
+                                <span className="text-sm text-[#664433] line-through">
+                                    {fmt(product.originalPrice)}
                                 </span>
                             )}
                         </div>
 
-                        <p style={{ fontSize: 13, color: "#aa8866", lineHeight: 1.75, marginBottom: 22 }}>
+                        {/* Description */}
+                        <p className="text-sm text-[#aa8866] leading-[1.75] mb-6">
                             {product.description}
                         </p>
 
                         {/* Size picker */}
                         {product.sizes?.length > 0 && (
-                            <div style={{ marginBottom: 24 }}>
-                                <p style={{ fontSize: 10, letterSpacing: "0.15em", textTransform: "uppercase", color: "#664433", marginBottom: 10 }}>
-                                    Size — <span style={{ color: "#ff6b00" }}>{selectedSize}</span>
+                            <div className="mb-6">
+                                <p className="text-[10px] tracking-[0.15em] uppercase text-[#664433] mb-2.5">
+                                    Size — <span className="text-[#ff6b00]">{selectedSize}</span>
                                 </p>
-                                <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                                    {product.sizes.map((s) => (
-                                        <button key={s} onClick={() => setSelectedSize(s)} style={{
-                                            padding: "6px 14px", borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: "pointer",
-                                            transition: "all 0.15s",
-                                            background: selectedSize === s ? "linear-gradient(135deg,#ff6b00,#ff0040)" : "#1e1000",
-                                            color: selectedSize === s ? "#fff" : "#664433",
-                                            border: selectedSize === s ? "1px solid transparent" : "1px solid #2a1500",
-                                        }}>
-                                            {s}
-                                        </button>
-                                    ))}
+                                <div className="flex flex-wrap gap-2">
+                                    {product.sizes.map((s) => {
+                                        const active = selectedSize === s;
+                                        return (
+                                            <button
+                                                key={s}
+                                                onClick={() => setSelectedSize(s)}
+                                                className="px-3.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-all"
+                                                style={{
+                                                    background: active ? "linear-gradient(135deg,#ff6b00,#ff0040)" : "#1e1000",
+                                                    color:      active ? "#fff" : "#664433",
+                                                    border:     active ? "1px solid transparent" : "1px solid #2a1500",
+                                                }}
+                                            >
+                                                {s}
+                                            </button>
+                                        );
+                                    })}
                                 </div>
                             </div>
                         )}
 
+                        {/* Add to cart */}
                         <button
                             onClick={() => onAddToCart({ ...product, selectedSize })}
+                            className="w-full py-3.5 rounded-xl border-none cursor-pointer text-white font-bold text-sm tracking-[0.12em] uppercase transition-all hover:scale-[1.02]"
                             style={{
-                                width: "100%", padding: "13px 0", borderRadius: 10,
-                                border: "none", cursor: "pointer",
                                 background: "linear-gradient(135deg,#ff6b00,#ff0040)",
-                                color: "#fff", fontWeight: 700, fontSize: 13,
-                                letterSpacing: "0.12em", textTransform: "uppercase",
                                 boxShadow: "0 8px 24px rgba(255,107,0,0.3)",
-                                transition: "transform 0.15s, box-shadow 0.15s",
                             }}
-                            onMouseEnter={(e) => { e.currentTarget.style.transform = "scale(1.02)"; e.currentTarget.style.boxShadow = "0 12px 32px rgba(255,107,0,0.45)"; }}
-                            onMouseLeave={(e) => { e.currentTarget.style.transform = "scale(1)"; e.currentTarget.style.boxShadow = "0 8px 24px rgba(255,107,0,0.3)"; }}
                         >
                             Add to Cart
                         </button>
 
-                        <div style={{ marginTop: 22, borderTop: "1px solid #1e1000", paddingTop: 18, display: "flex", flexDirection: "column", gap: 8 }}>
-                            {product.material && (
-                                <p style={{ fontSize: 11, color: "#443322", lineHeight: 1.6 }}>
-                                    <strong style={{ color: "#664433" }}>Material: </strong>{product.material}
-                                </p>
-                            )}
-                            {product.care && (
-                                <p style={{ fontSize: 11, color: "#443322", lineHeight: 1.6 }}>
-                                    <strong style={{ color: "#664433" }}>Care: </strong>{product.care}
-                                </p>
-                            )}
-                        </div>
+                        {/* Material / Care */}
+                        {(product.material || product.care) && (
+                            <div className="mt-5 pt-4 border-t border-[#1e1000] flex flex-col gap-2">
+                                {product.material && (
+                                    <p className="text-[11px] text-[#443322] leading-relaxed">
+                                        <strong className="text-[#664433]">Material: </strong>{product.material}
+                                    </p>
+                                )}
+                                {product.care && (
+                                    <p className="text-[11px] text-[#443322] leading-relaxed">
+                                        <strong className="text-[#664433]">Care: </strong>{product.care}
+                                    </p>
+                                )}
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

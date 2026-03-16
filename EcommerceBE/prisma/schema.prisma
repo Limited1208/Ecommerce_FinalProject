@@ -53,12 +53,18 @@ enum PaymentStatus{
   REFUNDED
 }
 
+enum Provider{
+  LOCAL
+  GOOGLE
+}
+
 model User{
   id String @id @default(uuid())
   email String @unique
   password String
-  fistName String?
+  firstName String?
   lastName String?
+  provider Provider
   role Role @default(User)
   refreshToken String?
 
