@@ -6,7 +6,7 @@ import { Logger, ValidationPipe } from '@nestjs/common';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  app.setGlobalPrefix('api/v1');
+  app.setGlobalPrefix('api');
 
   //Set global validation
   app.useGlobalPipes(
@@ -21,12 +21,13 @@ async function bootstrap() {
     .setTitle('E-Commerce')
     .setDescription('Backend for  e-Commerce')
     .setVersion('3.1.1')
+    .addBearerAuth()
     .build()
 
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, documentFactory)
 
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(process.env.PORT ?? 8080);
 }
 bootstrap().catch((error) =>{
   Logger.error('Error starting server', error)
