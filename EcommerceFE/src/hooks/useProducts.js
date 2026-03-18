@@ -10,7 +10,7 @@ export function useProducts() {
   useEffect(() => {
     const controller = new AbortController();
 
-    fetch("https://localhost:7287/api/Product", { signal: controller.signal })
+    fetch("https://localhost:8080/api/Product", { signal: controller.signal })
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res.json();

@@ -1,48 +1,29 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { usePageTitle } from "../hooks/usePageTitle";
+import { useAuth } from "../hooks/useAuth";
+import { gradients, shadows, keyframes, tw } from "../assets/theme";
 
 export default function LoginPage() {
-    usePageTitle("Sign In")
-    const [showPassword, setShowPassword] = useState(false);
+    usePageTitle("Sign In");
 
-    const inputStyle = {
-        width: "100%",
-        padding: "11px 14px",
-        border: "1px solid #2a1500",
-        borderRadius: "8px",
-        fontSize: "14px",
-        color: "#fff",
-        background: "#110700",
-        outline: "none",
-        boxSizing: "border-box",
-        transition: "border-color 0.2s",
+    const { login, loading, error } = useAuth();
+
+    const [email, setEmail]             = useState("");
+    const [password, setPassword]       = useState("");
+    const [showPassword, setShowPassword] = useState("");
+
+    const handleLogin = (e) => {
+        e.preventDefault();
+        login(email, password);
     };
 
     return (
-        <div style={{
-            minHeight: "100vh",
-            background: "#0d0800",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: "24px",
-        }}>
-            <style>{`
-        @keyframes fadeUp {
-          from { opacity: 0; transform: translateY(16px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-        .login-card { animation: fadeUp 0.4s cubic-bezier(0.22,1,0.36,1) both; }
-        ::placeholder { color: #2a1500; }
-      `}</style>
+        <div className="min-h-screen bg-[#0d0800] flex flex-col items-center justify-center px-6 py-8">
+            <style>{keyframes}</style>
 
             {/* Logo */}
-            <Link to="/" style={{
-                display: "flex", alignItems: "center", gap: "10px",
-                marginBottom: "36px", textDecoration: "none",
-            }}>
+            <Link to="/" className="flex items-center gap-2.5 mb-9 no-underline">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="url(#fireGradLogin)">
                     <defs>
                         <linearGradient id="fireGradLogin" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -52,89 +33,56 @@ export default function LoginPage() {
                     </defs>
                     <path d="M13 2L4.09 12.97H11L10 22l9.91-10.97H14L13 2z" />
                 </svg>
-                <span className="heading" style={{ fontSize: "22px", color: "#fff", letterSpacing: "0.2em" }}>
-                    STRIKEZON
-                </span>
+                <span className="heading text-[22px] text-white tracking-[0.2em]">STRIKEZON</span>
             </Link>
 
             {/* Card */}
-            <div className="login-card" style={{
-                background: "#130900",
-                border: "1px solid #2a1500",
-                borderRadius: "20px",
-                padding: "40px",
-                width: "100%",
-                maxWidth: "420px",
-                boxShadow: "0 24px 64px rgba(0,0,0,0.6), 0 0 40px rgba(255,107,0,0.05)",
-            }}>
-                {/* Heading */}
-                <p style={{
-                    fontSize: "10px", letterSpacing: "0.3em", textTransform: "uppercase",
-                    color: "#ff6b00", marginBottom: "8px",
-                }}>
-                    Welcome back
-                </p>
-                <h1 className="heading" style={{ fontSize: "32px", color: "#fff", marginBottom: "28px" }}>
-                    Sign In
-                </h1>
+            <div
+                className={`${tw.card} animate-[fadeUp_0.4s_cubic-bezier(0.22,1,0.36,1)_both] w-full max-w-[420px] p-10`}
+                style={{ boxShadow: "0 24px 64px rgba(0,0,0,0.6), 0 0 40px rgba(255,107,0,0.05)" }}
+            >
+                <p className={`${tw.labelOrange} mb-2`}>Welcome back</p>
+                <h1 className="heading text-[32px] text-white mb-7">Sign In</h1>
 
-                {/* Form */}
-                <form onSubmit={(e) => e.preventDefault()} style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
+                <form onSubmit={handleLogin} className="flex flex-col gap-4">
 
                     {/* Email */}
-                    <div>
-                        <label style={{
-                            display: "block", fontSize: "10px", letterSpacing: "0.2em",
-                            textTransform: "uppercase", color: "#664433", marginBottom: "6px",
-                        }}>
-                            Email
-                        </label>
+                    <div className="flex flex-col gap-1.5">
+                        <label className={tw.label}>Email</label>
                         <input
                             type="email"
                             placeholder="your@email.com"
-                            style={inputStyle}
-                            onFocus={(e) => e.target.style.borderColor = "#ff6b00"}
-                            onBlur={(e) => e.target.style.borderColor = "#2a1500"}
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            className={tw.input}
+                            required
                         />
                     </div>
 
                     {/* Password */}
-                    <div>
-                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px" }}>
-                            <label style={{
-                                fontSize: "10px", letterSpacing: "0.2em",
-                                textTransform: "uppercase", color: "#664433",
-                            }}>
-                                Password
-                            </label>
-                            <button type="button" style={{
-                                background: "none", border: "none",
-                                fontSize: "11px", color: "#ff6b00",
-                                cursor: "pointer", padding: 0, letterSpacing: "0.5px",
-                            }}>
+                    <div className="flex flex-col gap-1.5">
+                        <div className="flex justify-between items-center">
+                            <label className={tw.label}>Password</label>
+                            <button
+                                type="button"
+                                className="text-[11px] text-[#ff6b00] bg-transparent border-none cursor-pointer tracking-wide hover:opacity-70 transition-opacity"
+                            >
                                 Forgot password?
                             </button>
                         </div>
-                        <div style={{ position: "relative" }}>
+                        <div className="relative">
                             <input
                                 type={showPassword ? "text" : "password"}
                                 placeholder="••••••••"
-                                style={{ ...inputStyle, padding: "11px 40px 11px 14px" }}
-                                onFocus={(e) => e.target.style.borderColor = "#ff6b00"}
-                                onBlur={(e) => e.target.style.borderColor = "#2a1500"}
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                className={`${tw.input} pr-10`}
+                                required
                             />
                             <button
                                 type="button"
                                 onClick={() => setShowPassword((v) => !v)}
-                                style={{
-                                    position: "absolute", right: "12px", top: "50%",
-                                    transform: "translateY(-50%)",
-                                    background: "none", border: "none",
-                                    cursor: "pointer", color: "#664433",
-                                    padding: 0, display: "flex", alignItems: "center",
-                                }}
-                                onMouseEnter={(e) => e.currentTarget.style.color = "#ff6b00"}
-                                onMouseLeave={(e) => e.currentTarget.style.color = "#664433"}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center text-[#664433] hover:text-[#ff6b00] transition-colors bg-transparent border-none cursor-pointer p-0"
                             >
                                 {showPassword ? (
                                     <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
@@ -152,60 +100,53 @@ export default function LoginPage() {
                         </div>
                     </div>
 
+                    {/* API Error */}
+                    {error && (
+                        <div className="flex items-center gap-2 px-3.5 py-2.5 rounded-lg bg-[#1a0005] border border-[#ff004033]">
+                            <span className="text-[#ff0040] text-lg leading-none">⚠</span>
+                            <p className="text-xs text-[#ff0040]">{error}</p>
+                        </div>
+                    )}
+
                     {/* Submit */}
                     <button
                         type="submit"
-                        style={{
-                            marginTop: "4px", padding: "13px",
-                            background: "linear-gradient(135deg, #ff6b00, #ff0040)",
-                            color: "#fff", border: "none", borderRadius: "8px",
-                            fontSize: "11px", letterSpacing: "0.2em",
-                            textTransform: "uppercase", fontWeight: 700,
-                            cursor: "pointer",
-                            boxShadow: "0 8px 24px rgba(255,107,0,0.3)",
-                            transition: "transform 0.15s, box-shadow 0.15s",
-                        }}
-                        onMouseEnter={(e) => { e.currentTarget.style.transform = "scale(1.02)"; e.currentTarget.style.boxShadow = "0 12px 32px rgba(255,107,0,0.45)"; }}
-                        onMouseLeave={(e) => { e.currentTarget.style.transform = "scale(1)"; e.currentTarget.style.boxShadow = "0 8px 24px rgba(255,107,0,0.3)"; }}
+                        disabled={loading}
+                        className={`${tw.btnPrimary} mt-1 w-full py-3.5 flex items-center justify-center gap-2.5 disabled:opacity-60 disabled:cursor-not-allowed disabled:scale-100`}
+                        style={{ background: gradients.brand, boxShadow: shadows.btnGlow }}
                     >
-                        Sign In
+                        {loading ? (
+                            <>
+                                <div className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-[spin_0.7s_linear_infinite]" />
+                                Signing in…
+                            </>
+                        ) : "Sign In"}
                     </button>
                 </form>
 
                 {/* Divider */}
-                <div style={{ display: "flex", alignItems: "center", gap: "12px", margin: "24px 0" }}>
-                    <div style={{ flex: 1, height: "1px", background: "#1e1000" }} />
-                    <span style={{ fontSize: "10px", color: "#2a1500", letterSpacing: "0.15em", textTransform: "uppercase" }}>
-                        or
-                    </span>
-                    <div style={{ flex: 1, height: "1px", background: "#1e1000" }} />
+                <div className="flex items-center gap-3 my-6">
+                    <div className={`${tw.dividerFull} flex-1`} />
+                    <span className="text-[10px] text-[#2a1500] tracking-[0.15em] uppercase">or</span>
+                    <div className={`${tw.dividerFull} flex-1`} />
                 </div>
 
                 {/* Register link */}
-                <p style={{ textAlign: "center", fontSize: "13px", color: "#664433" }}>
+                <p className="text-center text-[13px] text-[#664433]">
                     Don&apos;t have an account?{" "}
-                    <Link to="/register" style={{
-                        color: "#ff6b00", fontWeight: 600,
-                        textDecoration: "none",
-                        borderBottom: "1px solid #ff6b0066",
-                        paddingBottom: "1px",
-                        transition: "color 0.2s, border-color 0.2s",
-                    }}>
+                    <Link
+                        to="/register"
+                        className="text-[#ff6b00] font-semibold no-underline border-b border-[#ff6b0066] pb-px hover:text-white hover:border-white transition-colors"
+                    >
                         Create account
                     </Link>
                 </p>
             </div>
 
             {/* Back to store */}
-            <Link to="/" style={{
-                marginTop: "28px", fontSize: "10px",
-                letterSpacing: "0.2em", textTransform: "uppercase",
-                color: "#2a1500", textDecoration: "none",
-                display: "flex", alignItems: "center", gap: "6px",
-                transition: "color 0.2s",
-            }}
-                onMouseEnter={(e) => e.currentTarget.style.color = "#ff6b00"}
-                onMouseLeave={(e) => e.currentTarget.style.color = "#2a1500"}
+            <Link
+                to="/"
+                className="mt-7 flex items-center gap-1.5 text-[10px] tracking-[0.2em] uppercase text-[#2a1500] no-underline hover:text-[#ff6b00] transition-colors"
             >
                 ← Back to store
             </Link>

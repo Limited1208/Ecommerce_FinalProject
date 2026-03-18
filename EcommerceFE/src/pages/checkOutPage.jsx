@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useOutletContext, useNavigate, Link } from "react-router-dom";
 import { SHIPPING_THRESHOLD } from "../data/constants";
 
+
 const fmt = (n) => `$${Number(n).toFixed(2)}`;
 
 /* ── Reusable Field wrapper ── */
@@ -13,6 +14,7 @@ function Field({ label, children }) {
         </div>
     );
 }
+
 
 /* ── Reusable Input ── */
 function Input({ type = "text", placeholder, value, onChange, maxLength }) {
