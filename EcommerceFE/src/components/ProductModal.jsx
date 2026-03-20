@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { FiX, FiChevronDown } from "react-icons/fi";
+import { gradients, shadows, tw } from "../styles/theme";
 
 export default function ProductModal({ product, onClose, onAddToCart }) {
     const [selectedSize, setSelectedSize] = useState(null);
@@ -8,9 +10,7 @@ export default function ProductModal({ product, onClose, onAddToCart }) {
 
     useEffect(() => {
         if (product?.sizes?.length) setSelectedSize(product.sizes[0]);
-        const handler = (e) => {
-            if (e.key === "Escape") onClose();
-        };
+        const handler = (e) => { if (e.key === "Escape") onClose(); };
         document.addEventListener("keydown", handler);
         document.body.style.overflow = "hidden";
         return () => {
@@ -21,10 +21,11 @@ export default function ProductModal({ product, onClose, onAddToCart }) {
 
     if (!product) return null;
 
-    const discount =
-        product.originalPrice && product.originalPrice > product.price
-            ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
-            : null;
+    const fmt = (n) => `$${Number(n).toFixed(2)}`;
+
+    const discount = product.originalPrice && product.originalPrice > product.price
+        ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
+        : null;
 
     const careSteps = product.care ? product.care.split(" · ") : [];
 
@@ -37,336 +38,237 @@ export default function ProductModal({ product, onClose, onAddToCart }) {
     };
 
     return (
-        <div
-            onClick={onClose}
-            style={{
-                position: "fixed",
-                inset: 0,
-                background: "rgba(28,24,20,0.6)",
-                backdropFilter: "blur(6px)",
-                zIndex: 1000,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                padding: "24px",
-            }}
-        >
+        <>
+            <style>{`
+                @keyframes modalIn {
+                    from { opacity: 0; transform: scale(0.96) translateY(12px); }
+                    to   { opacity: 1; transform: scale(1)    translateY(0); }
+                }
+                .modal-card { animation: modalIn 0.28s cubic-bezier(0.22,1,0.36,1) both; }
+                .accordion-body { transition: max-height 0.3s ease; overflow: hidden; }
+            `}</style>
+
+            {/* Backdrop */}
             <div
-                onClick={(e) => e.stopPropagation()}
-                style={{
-                    background: "#faf8f5",
-                    borderRadius: "2px",
-                    maxWidth: "820px",
-                    width: "100%",
-                    maxHeight: "90vh",
-                    display: "flex",
-                    overflow: "hidden",
-                    position: "relative",
-                }}
+                className="fixed inset-0 z-[1000] flex items-center justify-center p-6 bg-black/70 backdrop-blur-md"
+                onClick={onClose}
             >
-                {/* Close button */}
-                <button
-                    onClick={onClose}
-                    style={{
-                        position: "absolute",
-                        top: "16px",
-                        right: "16px",
-                        background: "none",
-                        border: "none",
-                        fontSize: "22px",
-                        cursor: "pointer",
-                        color: "#2c2c2c",
-                        zIndex: 10,
-                        lineHeight: 1,
-                    }}
-                >
-                    ×
-                </button>
-
-                {/* Image */}
-                <div style={{ width: "44%", flexShrink: 0, background: "#ede8e1" }}>
-                    <img
-                        src={product.image}
-                        alt={product.name}
-                        style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-                    />
-                </div>
-
-                {/* Details */}
+                {/* Card */}
                 <div
-                    style={{
-                        flex: 1,
-                        overflowY: "auto",
-                        padding: "36px 32px 36px 36px",
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: "16px",
-                    }}
+                    className="modal-card relative bg-[#130900] border border-[#2a1500] rounded-2xl w-full max-w-[820px] max-h-[90vh] flex overflow-hidden"
+                    style={{ boxShadow: shadows.modal }}
+                    onClick={(e) => e.stopPropagation()}
                 >
-                    {/* Category + badge */}
-                    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                        <span style={{ fontSize: "11px", color: "#9a8c7e", letterSpacing: "2px", textTransform: "uppercase" }}>
-                            {product.category}
-                        </span>
-                        {product.badge && (
-                            <span
-                                style={{
-                                    fontSize: "10px",
-                                    fontWeight: 500,
-                                    letterSpacing: "1px",
-                                    textTransform: "uppercase",
-                                    padding: "2px 8px",
-                                    background: product.badge === "Sale" ? "#c0392b" : "#2c2c2c",
-                                    color: "#fff",
-                                    borderRadius: "2px",
-                                }}
-                            >
-                                {product.badge}
-                            </span>
-                        )}
-                    </div>
-
-                    {/* Name */}
-                    <h2
-                        className="heading"
-                        style={{ fontSize: "26px", fontWeight: 600, color: "#2c2c2c", margin: 0, lineHeight: 1.2 }}
+                    {/* Close */}
+                    <button
+                        onClick={onClose}
+                        className="absolute top-4 right-4 z-10 w-8 h-8 flex items-center justify-center rounded-full bg-[#1e1000] border border-[#2a1500] text-[#664433] hover:text-white hover:border-[#ff6b00] transition-all"
                     >
-                        {product.name}
-                    </h2>
+                        <FiX size={14} />
+                    </button>
 
-                    {/* Variant */}
-                    <p style={{ fontSize: "13px", color: "#9a8c7e", margin: 0 }}>{product.variant}</p>
-
-                    {/* Price */}
-                    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                        {product.originalPrice && (
-                            <span style={{ fontSize: "14px", color: "#b0a090", textDecoration: "line-through" }}>
-                                ${product.originalPrice}
-                            </span>
-                        )}
-                        <span
-                            style={{
-                                fontSize: "20px",
-                                fontWeight: 600,
-                                color: discount ? "#c0392b" : "#2c2c2c",
-                            }}
-                        >
-                            ${product.price}
-                        </span>
-                        {discount && (
-                            <span
-                                style={{
-                                    fontSize: "11px",
-                                    fontWeight: 600,
-                                    background: "#fdf0ef",
-                                    color: "#c0392b",
-                                    padding: "2px 8px",
-                                    borderRadius: "20px",
-                                }}
-                            >
-                                -{discount}%
-                            </span>
-                        )}
+                    {/* ── Image ── */}
+                    <div className="w-[44%] flex-shrink-0 bg-[#0d0800]">
+                        <img
+                            src={product.image}
+                            alt={product.name}
+                            className="w-full h-full object-cover block"
+                        />
                     </div>
 
-                    {/* Description */}
-                    {product.description && (
-                        <p style={{ fontSize: "14px", color: "#5c5248", lineHeight: 1.7, margin: 0 }}>
-                            {product.description}
-                        </p>
-                    )}
+                    {/* ── Details ── */}
+                    <div className="flex-1 overflow-y-auto px-9 py-9 flex flex-col gap-4">
 
-                    {/* Material */}
-                    {product.material && (
-                        <div>
-                            <span style={{ fontSize: "11px", color: "#9a8c7e", letterSpacing: "1.5px", textTransform: "uppercase" }}>
-                                Material
-                            </span>
-                            <p style={{ fontSize: "14px", color: "#2c2c2c", margin: "4px 0 0 0" }}>{product.material}</p>
-                        </div>
-                    )}
-
-                    {/* Sizes */}
-                    {product.sizes && product.sizes.length > 0 && (
-                        <div>
-                            <span style={{ fontSize: "11px", color: "#9a8c7e", letterSpacing: "1.5px", textTransform: "uppercase" }}>
-                                Size
-                            </span>
-                            <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginTop: "8px" }}>
-                                {product.sizes.map((size) => (
-                                    <button
-                                        key={size}
-                                        onClick={() => setSelectedSize(size)}
-                                        style={{
-                                            padding: "6px 14px",
-                                            fontSize: "13px",
-                                            border: "1px solid",
-                                            borderColor: selectedSize === size ? "#2c2c2c" : "#d4c9bc",
-                                            background: selectedSize === size ? "#2c2c2c" : "transparent",
-                                            color: selectedSize === size ? "#fff" : "#2c2c2c",
-                                            cursor: "pointer",
-                                            borderRadius: "2px",
-                                            transition: "all 0.15s",
-                                        }}
-                                    >
-                                        {size}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Size chart accordion */}
-                    {product.sizeChart && (
-                        <div style={{ borderTop: "1px solid #e8e0d8", paddingTop: "12px" }}>
-                            <button
-                                onClick={() => setSizeChartOpen(!sizeChartOpen)}
-                                style={{
-                                    width: "100%",
-                                    display: "flex",
-                                    justifyContent: "space-between",
-                                    alignItems: "center",
-                                    background: "none",
-                                    border: "none",
-                                    cursor: "pointer",
-                                    padding: "4px 0",
-                                    fontSize: "12px",
-                                    color: "#2c2c2c",
-                                    letterSpacing: "1.5px",
-                                    textTransform: "uppercase",
-                                    fontWeight: 500,
-                                }}
-                            >
-                                Size Chart
-                                <span style={{ transition: "transform 0.2s", transform: sizeChartOpen ? "rotate(180deg)" : "none" }}>
-                                    ▾
-                                </span>
-                            </button>
-                            <div
-                                style={{
-                                    maxHeight: sizeChartOpen ? "300px" : "0",
-                                    overflow: "hidden",
-                                    transition: "max-height 0.3s ease",
-                                }}
-                            >
-                                <table
+                        {/* Category + badge */}
+                        <div className="flex items-center gap-2.5">
+                            <span className={tw.label}>{product.category}</span>
+                            {product.badge && (
+                                <span
+                                    className="text-[10px] font-bold tracking-widest uppercase px-2 py-0.5 rounded text-white"
                                     style={{
-                                        width: "100%",
-                                        borderCollapse: "collapse",
-                                        fontSize: "13px",
-                                        marginTop: "12px",
+                                        background: product.badge === "Sale" ? "#ff0040"
+                                            : product.badge === "New" ? "#ff6b00"
+                                                : "#2a1500",
                                     }}
                                 >
-                                    <thead>
-                                        <tr>
-                                            {product.sizeChart.headers.map((h) => (
-                                                <th
-                                                    key={h}
-                                                    style={{
-                                                        textAlign: "left",
-                                                        padding: "6px 8px",
-                                                        background: "#ede8e1",
-                                                        color: "#5c5248",
-                                                        fontWeight: 500,
-                                                        fontSize: "11px",
-                                                        letterSpacing: "0.5px",
-                                                    }}
-                                                >
-                                                    {h}
-                                                </th>
-                                            ))}
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {product.sizeChart.rows.map((row, i) => (
-                                            <tr key={i} style={{ background: i % 2 === 0 ? "transparent" : "#faf8f5" }}>
-                                                {row.map((cell, j) => (
-                                                    <td
-                                                        key={j}
-                                                        style={{
-                                                            padding: "6px 8px",
-                                                            color: "#2c2c2c",
-                                                            borderBottom: "1px solid #ede8e1",
-                                                        }}
+                                    {product.badge}
+                                </span>
+                            )}
+                        </div>
+
+                        {/* Name */}
+                        <h2 className="heading text-[26px] text-white leading-tight m-0">
+                            {product.name}
+                        </h2>
+
+                        {/* Variant */}
+                        <p className="text-[13px] text-[#664433] m-0">{product.variant}</p>
+
+                        {/* Price */}
+                        <div className="flex items-center gap-2.5">
+                            {product.originalPrice && (
+                                <span className="text-sm text-[#664433] line-through">
+                                    {fmt(product.originalPrice)}
+                                </span>
+                            )}
+                            <span
+                                className="text-xl font-semibold"
+                                style={{ color: discount ? "#ff0040" : "#fff" }}
+                            >
+                                {fmt(product.price)}
+                            </span>
+                            {discount && (
+                                <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-[#ff004015] text-[#ff0040]">
+                                    -{discount}%
+                                </span>
+                            )}
+                        </div>
+
+                        {/* Description */}
+                        {product.description && (
+                            <p className="text-sm text-[#aa8866] leading-[1.7] m-0">
+                                {product.description}
+                            </p>
+                        )}
+
+                        {/* Material */}
+                        {product.material && (
+                            <div>
+                                <span className={tw.label}>Material</span>
+                                <p className="text-sm text-white mt-1 mb-0">{product.material}</p>
+                            </div>
+                        )}
+
+                        {/* Size picker */}
+                        {product.sizes?.length > 0 && (
+                            <div>
+                                <span className={tw.label}>
+                                    Size
+                                    {selectedSize && (
+                                        <span className="text-[#ff6b00] ml-2 normal-case tracking-normal">
+                                            — {selectedSize}
+                                        </span>
+                                    )}
+                                </span>
+                                <div className="flex flex-wrap gap-2 mt-2">
+                                    {product.sizes.map((size) => {
+                                        const active = selectedSize === size;
+                                        return (
+                                            <button
+                                                key={size}
+                                                onClick={() => setSelectedSize(size)}
+                                                className="px-3.5 py-1.5 text-xs font-semibold rounded-lg cursor-pointer transition-all"
+                                                style={{
+                                                    background: active ? "linear-gradient(135deg,#ff6b00,#ff0040)" : "#1e1000",
+                                                    color: active ? "#fff" : "#664433",
+                                                    border: active ? "1px solid transparent" : "1px solid #2a1500",
+                                                }}
+                                            >
+                                                {size}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* ── Size chart accordion ── */}
+                        {product.sizeChart && (
+                            <div className="border-t border-[#1e1000] pt-3">
+                                <button
+                                    onClick={() => setSizeChartOpen((v) => !v)}
+                                    className="w-full flex justify-between items-center bg-transparent border-none cursor-pointer py-1 text-[11px] tracking-[0.15em] uppercase font-semibold text-[#aa8866] hover:text-white transition-colors"
+                                >
+                                    Size Chart
+                                    <FiChevronDown
+                                        size={14}
+                                        className="transition-transform duration-200 text-[#664433]"
+                                        style={{ transform: sizeChartOpen ? "rotate(180deg)" : "rotate(0deg)" }}
+                                    />
+                                </button>
+                                <div
+                                    className="accordion-body"
+                                    style={{ maxHeight: sizeChartOpen ? "300px" : "0" }}
+                                >
+                                    <table className="w-full border-collapse text-xs mt-3">
+                                        <thead>
+                                            <tr>
+                                                {product.sizeChart.headers.map((h) => (
+                                                    <th
+                                                        key={h}
+                                                        className="text-left px-2 py-1.5 text-[11px] font-medium text-[#664433] tracking-wide bg-[#1e1000]"
                                                     >
-                                                        {cell}
-                                                    </td>
+                                                        {h}
+                                                    </th>
                                                 ))}
                                             </tr>
+                                        </thead>
+                                        <tbody>
+                                            {product.sizeChart.rows.map((row, i) => (
+                                                <tr
+                                                    key={i}
+                                                    className={i % 2 === 0 ? "bg-transparent" : "bg-[#110700]"}
+                                                >
+                                                    {row.map((cell, j) => (
+                                                        <td
+                                                            key={j}
+                                                            className="px-2 py-1.5 text-[#aa8866] border-b border-[#1e1000]"
+                                                        >
+                                                            {cell}
+                                                        </td>
+                                                    ))}
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* ── Care instructions accordion ── */}
+                        {careSteps.length > 0 && (
+                            <div className="border-t border-[#1e1000] pt-3">
+                                <button
+                                    onClick={() => setCareOpen((v) => !v)}
+                                    className="w-full flex justify-between items-center bg-transparent border-none cursor-pointer py-1 text-[11px] tracking-[0.15em] uppercase font-semibold text-[#aa8866] hover:text-white transition-colors"
+                                >
+                                    Care Instructions
+                                    <FiChevronDown
+                                        size={14}
+                                        className="transition-transform duration-200 text-[#664433]"
+                                        style={{ transform: careOpen ? "rotate(180deg)" : "rotate(0deg)" }}
+                                    />
+                                </button>
+                                <div
+                                    className="accordion-body"
+                                    style={{ maxHeight: careOpen ? "300px" : "0" }}
+                                >
+                                    <ul className="mt-3 p-0 list-none flex flex-col gap-1.5">
+                                        {careSteps.map((step, i) => (
+                                            <li key={i} className="flex items-start gap-2 text-sm text-[#aa8866]">
+                                                <span className="text-[#ff6b00] flex-shrink-0 mt-px">✦</span>
+                                                {step}
+                                            </li>
                                         ))}
-                                    </tbody>
-                                </table>
+                                    </ul>
+                                </div>
                             </div>
-                        </div>
-                    )}
+                        )}
 
-                    {/* Care accordion */}
-                    {careSteps.length > 0 && (
-                        <div style={{ borderTop: "1px solid #e8e0d8", paddingTop: "12px" }}>
-                            <button
-                                onClick={() => setCareOpen(!careOpen)}
-                                style={{
-                                    width: "100%",
-                                    display: "flex",
-                                    justifyContent: "space-between",
-                                    alignItems: "center",
-                                    background: "none",
-                                    border: "none",
-                                    cursor: "pointer",
-                                    padding: "4px 0",
-                                    fontSize: "12px",
-                                    color: "#2c2c2c",
-                                    letterSpacing: "1.5px",
-                                    textTransform: "uppercase",
-                                    fontWeight: 500,
-                                }}
-                            >
-                                Care Instructions
-                                <span style={{ transition: "transform 0.2s", transform: careOpen ? "rotate(180deg)" : "none" }}>
-                                    ▾
-                                </span>
-                            </button>
-                            <div
-                                style={{
-                                    maxHeight: careOpen ? "300px" : "0",
-                                    overflow: "hidden",
-                                    transition: "max-height 0.3s ease",
-                                }}
-                            >
-                                <ul style={{ margin: "12px 0 0 0", padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: "6px" }}>
-                                    {careSteps.map((step, i) => (
-                                        <li key={i} style={{ display: "flex", alignItems: "flex-start", gap: "8px", fontSize: "13px", color: "#5c5248" }}>
-                                            <span style={{ color: "#c8a96e", flexShrink: 0, marginTop: "1px" }}>✦</span>
-                                            {step}
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Add to Cart */}
-                    <button
-                        onClick={handleAddToCart}
-                        style={{
-                            marginTop: "8px",
-                            padding: "14px",
-                            background: added ? "#2e7d32" : "#2c2c2c",
-                            color: "#fff",
-                            border: "none",
-                            fontSize: "13px",
-                            letterSpacing: "2px",
-                            textTransform: "uppercase",
-                            fontWeight: 500,
-                            cursor: "pointer",
-                            borderRadius: "2px",
-                            transition: "background 0.3s",
-                        }}
-                    >
-                        {added ? "Added to Cart ✓" : "Add to Cart"}
-                    </button>
+                        {/* ── Add to Cart ── */}
+                        <button
+                            onClick={handleAddToCart}
+                            className="mt-2 py-3.5 rounded-xl border-none text-sm tracking-[0.12em] uppercase font-bold text-white cursor-pointer transition-all hover:scale-[1.02]"
+                            style={{
+                                background: added ? "#22c55e" : gradients.brand,
+                                boxShadow: added ? "none" : shadows.btnGlow,
+                            }}
+                        >
+                            {added ? "Added to Cart ✓" : "Add to Cart"}
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
+        </>
     );
 }

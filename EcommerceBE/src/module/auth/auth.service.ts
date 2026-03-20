@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, Injectable, InternalServerErrorException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { RegisterDto } from './dto/register.dto';
 import { AuthResponserDto } from './dto/auth-response.dto';
@@ -6,6 +6,7 @@ import * as bcrypt from 'bcrypt';
 import { randomBytes } from 'crypto';
 import { JwtService } from '@nestjs/jwt';
 import { LoginDto } from './dto/login.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -138,8 +139,42 @@ export class AuthService {
                 role: user.role
             }
         }
-
     }
+
+    async changePassword(userId: string, dto: ChangePasswordDto): Promise<{message: string}>{
+        const {currentPassword, newPassword} = dto;
+
+        const user = await this.prisma.user.findUnique({
+            where: {id: userId}
+        })
+
+        if(!user){
+            throw new NotFoundException('User not found')
+        }
+
+        const isMatch = await bcrypt.compare(currentPassword, user.password);
+        if(!isMatch){
+            throw new NotFoundException('Current password is incorrect')
+        }
+
+        if(currentPassword == newPassword){
+            throw new NotFoundException('New password must be different')
+        }
+
+        const hashPassword = await bcrypt.hash(newPassword, this.SALT_ROUNDS)
+
+        await this.prisma.user.update({
+            where: {id: userId},
+            data: {
+                password: hashPassword,
+            },
+        });
+
+        return {
+            message: 'Password changed successfully'
+        };
+    }
+
 
     async logout(userId: string): Promise<void> {
         await this.prisma.user.update({

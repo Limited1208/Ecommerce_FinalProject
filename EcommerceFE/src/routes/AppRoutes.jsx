@@ -8,6 +8,7 @@ import ProductPage from "../pages/ProductPage";
 import LoginPage from "../pages/loginPage";
 import RegisterPage from "../pages/registerPage";
 import CheckoutPage from "../pages/checkOutPage";
+import ProfilePage from "../pages/profilePage";
 
 function AppRoutes() {
   return (
@@ -112,6 +113,7 @@ function AppRoutes() {
           />
 
           <Route path="/sale" element={<SalePage />} />
+          <Route path="/profile" element={<ProfilePage />} />
 
         </Route>
         <Route path="/login"    element={<LoginPage />} />
