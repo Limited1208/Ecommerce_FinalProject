@@ -61,7 +61,6 @@ async function bootstrap() {
       operationsSorter: 'alpha',
     },
     customSiteTitle: 'Ecommerce API',
-    customfavIcon: 'https://nestjs.com/Logo_NestJS.svg',
     customCss: `
     .swagger-ui .topbar {
       display: none;
