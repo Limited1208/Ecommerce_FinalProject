@@ -6,7 +6,7 @@ import * as bcrypt from 'bcrypt';
 import { randomBytes } from 'crypto';
 import { JwtService } from '@nestjs/jwt';
 import { LoginDto } from './dto/login.dto';
-import { ChangePasswordDto } from './dto/change-password.dto';
+import { ChangePasswordDto } from '../users/dto/change-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -125,13 +125,17 @@ export class AuthService {
         if (!user) {
             throw new UnauthorizedException('User not found');
         }
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        if (!isPasswordValid) {
+            throw new UnauthorizedException('Invalid password');
+        }
 
         const token = await this.generateToken(user.id, user.email);
         await this.updateRefreshToken(user.id, token.refreshToken);
 
-        return{
+        return {
             ...token,
-            user:{
+            user: {
                 id: user.id,
                 email: user.email,
                 firstName: user.firstName,
@@ -140,41 +144,6 @@ export class AuthService {
             }
         }
     }
-
-    async changePassword(userId: string, dto: ChangePasswordDto): Promise<{message: string}>{
-        const {currentPassword, newPassword} = dto;
-
-        const user = await this.prisma.user.findUnique({
-            where: {id: userId}
-        })
-
-        if(!user){
-            throw new NotFoundException('User not found')
-        }
-
-        const isMatch = await bcrypt.compare(currentPassword, user.password);
-        if(!isMatch){
-            throw new NotFoundException('Current password is incorrect')
-        }
-
-        if(currentPassword == newPassword){
-            throw new NotFoundException('New password must be different')
-        }
-
-        const hashPassword = await bcrypt.hash(newPassword, this.SALT_ROUNDS)
-
-        await this.prisma.user.update({
-            where: {id: userId},
-            data: {
-                password: hashPassword,
-            },
-        });
-
-        return {
-            message: 'Password changed successfully'
-        };
-    }
-
 
     async logout(userId: string): Promise<void> {
         await this.prisma.user.update({

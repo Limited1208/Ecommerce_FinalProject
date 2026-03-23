@@ -7,7 +7,6 @@ import { GetUser } from 'src/common/decorators/get-user.decorator';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.decorator';
 import { LoginDto } from './dto/login.dto';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { ChangePasswordDto } from './dto/change-password.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -57,11 +56,5 @@ export class AuthController {
     @HttpCode(HttpStatus.OK)
     async login(@Body() loginDto: LoginDto): Promise<AuthResponserDto> {
         return this.authService.login(loginDto);
-    }
-
-    @UseGuards(JwtAuthGuard)
-    @Patch('change-password')
-    async changePassword(@GetUser('id') userId: string, @Body() dto: ChangePasswordDto){
-        return this.authService.changePassword(userId, dto);
     }
 }

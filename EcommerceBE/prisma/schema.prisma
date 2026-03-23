@@ -64,11 +64,13 @@ model User{
   password String
   firstName String?
   lastName String?
+  imageUrl String?
   provider Provider
   role Role @default(User)
   refreshToken String?
 
   //Relations
+  addresses Address[] 
   order Order[]
   carts Cart[]
   payments Payment[]
@@ -78,6 +80,29 @@ model User{
 
   @@index([email])
   @@map("users")
+}
+
+model Address{
+  id String @id @default(uuid())
+
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  fullName String
+  phone String
+
+  province String
+  district String
+  ward String
+  detail String
+
+  isDefault Boolean @default(false)
+
+  createAt DateTime @default(now())
+  updateAt DateTime @updatedAt
+
+  @@index([userId])
+  @@map("addresses")
 }
 
 model Product{

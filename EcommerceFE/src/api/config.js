@@ -18,7 +18,7 @@ const baseUrl = axios.create({
 
 baseUrl.interceptors.request.use(
     (config) => {
-        const token = localStorage.getItem("auth_token");
+        const token = localStorage.getItem("token");
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
@@ -30,30 +30,35 @@ baseUrl.interceptors.request.use(
 );
 
 baseUrl.interceptors.response.use(
-    (response) => {
-        return response;
-    },
-    (error) => {
-        if (error.response?.status === 401) {
-            document.cookie = "token=; max-age=0; path=/;";
-            localStorage.removeItem("user_type");
-            localStorage.removeItem("user_name");
+    (res) => res,
+    (err) => {
+        const status = err.response?.status;
 
+        if (status === 401) {
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
             if (!window.location.pathname.includes("/login")) {
-                alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại!");
                 window.location.href = "/login";
             }
         }
 
-        if (error.response?.status === 500) {
-            console.error("Lỗi máy chủ. Vui lòng thử lại sau!");
+        if (status === 403) {
+            console.warn("Access denied: insufficient permissions.");
         }
 
-        if (error.code === "ECONNABORTED") {
-            console.error("Kết nối quá thời gian. Vui lòng thử lại!");
+        if (status === 500) {
+            console.error("Internal server error. Please try again later.");
         }
 
-        return Promise.reject(error);
+        if (err.code === "ECONNABORTED") {
+            console.error("Request timed out. Please check your connection.");
+        }
+
+        if (!err.response) {
+            console.error("Network error. Please check your connection.");
+        }
+
+        return Promise.reject(err);
     }
 );
 

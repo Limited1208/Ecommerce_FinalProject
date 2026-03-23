@@ -7,25 +7,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.setGlobalPrefix('api');
-
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
-      transformOptions: {
-        enableImplicitConversion: true,
-      }
-    }),
-  )
-
-  app.enableCors({
-    origin: process.env.ALLOW_ORIGIN?.split(',') ?? 'localhost://5173',
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTION"],
-    allowedHeaders: ['Content-Type', 'Authorization', 'Accept']
-  });
-
+  
   //Set global validation
   app.useGlobalPipes(
     new ValidationPipe({
@@ -34,6 +16,14 @@ async function bootstrap() {
       transform: true
     })
   )
+  
+  app.enableCors({
+    origin: process.env.ALLOW_ORIGIN?.split(',') ?? 'localhost://5173',
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTION"],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept']
+  });
+
 
   const config = new DocumentBuilder()
     .setTitle('Ecommerce API')
@@ -60,7 +50,7 @@ async function bootstrap() {
     },
       'JWT-refresh'
     )
-    .addServer('http://localhost:5173/', 'Development server')
+    .addServer('http://localhost:8080/', 'Development server')
     .build();
 
   const documentFactory = () => SwaggerModule.createDocument(app, config);

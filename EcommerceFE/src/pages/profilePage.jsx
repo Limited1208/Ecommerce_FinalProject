@@ -8,6 +8,7 @@ import {
 import { usePageTitle } from "../hooks/usePageTitle";
 import { useUser } from "../hooks/useUser";
 import { gradients, shadows, keyframes, tw } from "../assets/theme";
+import { updateProfileApi } from "../api/userApi";
 
 /* ── Section card wrapper ── */
 function Section({ title, children }) {
@@ -58,13 +59,10 @@ function StatCard({ icon: Icon, label, value, color = "#ff6b00" }) {
     );
 }
 
-/* ══════════════════════════════════════
-   MAIN PAGE
-══════════════════════════════════════ */
 export default function ProfilePage() {
     usePageTitle("My Profile");
     const navigate = useNavigate();
-    const { user, isLoggedIn, logout } = useUser();
+    const { user, isLoggedIn, logout, changePassword } = useUser();
 
     const [editing, setEditing] = useState(false);
     const [saving, setSaving] = useState(false);
@@ -104,10 +102,18 @@ export default function ProfilePage() {
 
     const handleChange = (e) => {
         setForm((p) => ({ ...p, [e.target.name]: e.target.value }));
+
     };
 
     const handleSave = async () => {
         setSaving(true);
+        setPwError("");
+        try{
+            await updateProfileApi(form);
+            setEditing(false)
+        }catch(err){
+            setPwError()
+        }
         // TODO: call updateProfileApi(form) when backend is ready
         await new Promise((r) => setTimeout(r, 800)); // simulate API
         const fullName = `${form.firstName} ${form.lastName}`.trim();
@@ -136,12 +142,16 @@ export default function ProfilePage() {
         if (passwords.newPwd.length < 8) { setPwError("Password must be at least 8 characters."); return; }
         if (passwords.newPwd !== passwords.confirm) { setPwError("Passwords do not match."); return; }
         setSaving(true);
-        // TODO: call changePasswordApi(passwords.current, passwords.newPwd)
-        await new Promise((r) => setTimeout(r, 800));
-        setSaving(false);
-        setPwSuccess(true);
-        setPasswords({ current: "", newPwd: "", confirm: "" });
-        setTimeout(() => setPwSuccess(false), 3000);
+        try {
+            await changePassword(passwords.current, passwords.newPwd);
+            setPwSuccess(true);
+            setPasswords({ current: "", newPwd: "", confirm: "" });
+            setTimeout(() => setPwSuccess(false), 3000);
+        } catch (err) {
+            setPwError(err.response?.data?.message ?? err.response?.data?.error ?? "Failed to change password.");
+        } finally {
+            setSaving(false);
+        }
     };
 
     const TABS = [

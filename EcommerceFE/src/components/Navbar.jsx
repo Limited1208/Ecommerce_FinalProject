@@ -343,7 +343,7 @@ export default function Navbar({ cartCount, onCartOpen, onLogoClick, onSearch })
                                     {/* User info header */}
                                     <div className="px-4 py-3.5 border-b border-[#1e1000]">
                                         <p className="text-xs font-semibold text-white truncate">
-                                            {user?.fullName ?? "My Account"}
+                                            {user?.firstName ?? "My Account"}
                                         </p>
                                         <p className="text-[11px] text-[#664433] truncate mt-0.5">
                                             {user?.email}
