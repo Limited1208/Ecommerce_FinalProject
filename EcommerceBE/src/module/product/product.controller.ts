@@ -4,6 +4,8 @@ import { ProductService } from './product.service';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.decorator';
 import { RoleGuard } from '../auth/guards/role.guard';
 import { CreateProductDto } from './dto/create-product.dto';
+import { ProductResponseDto } from './dto/product-response.dto';
+import { Roles } from 'src/common/decorators/roles.decorator';
 import { Role } from '@prisma/client';
 
 @ApiTags('products')
@@ -11,13 +13,13 @@ import { Role } from '@prisma/client';
 export class ProductController {
     constructor(private productService: ProductService){}
 
-    // @Post()
-    // @UseGuards(JwtAuthGuard, RoleGuard)
-    // @Roles(Role.Admin)
-    // @ApiBearerAuth('JWT-auth')
-    // @ApiOperation({summary: 'Create a new product (Admin, Manager)'})
-    // @ApiBody({type: CreateProductDto})
-    // async create(@Body() createProductDto: CreateProductDto){
-
-    // }
+    @Post()
+    @UseGuards(JwtAuthGuard, RoleGuard)
+    @Roles(Role.Admin)
+    @ApiBearerAuth('JWT-auth')
+    @ApiOperation({summary: 'Create a new product (Admin, Manager)'})
+    @ApiBody({type: CreateProductDto})
+    async create(@Body() createProductDto: CreateProductDto): Promise<ProductResponseDto>{
+        return this.productService.create(createProductDto)
+    }
 }
