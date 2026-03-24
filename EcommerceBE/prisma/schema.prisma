@@ -30,6 +30,8 @@ enum Badge{
 enum ProductStatus{
   InStock
   OutOfStock
+  ACTIVE
+  DRAFT
 }
 
 enum Gender{
@@ -111,7 +113,7 @@ model Product{
   sku String @unique
   description String?
   price Decimal @db.Decimal(10, 2)
-  originPrice Decimal? 
+  originPrice Decimal? @db.Decimal(10,2)
   stock Int @default(0)
   imageUrl String?
   status ProductStatus

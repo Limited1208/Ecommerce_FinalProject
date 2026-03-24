@@ -86,16 +86,6 @@ export class CreateProductDto {
     status: ProductStatus;
 
     @ApiPropertyOptional({
-        description: 'Whether product is active and available for purchase',
-        example: true,
-        default: true,
-        required: false,
-    })
-    @IsOptional()
-    @IsBoolean()
-    isActive?: boolean;
-
-    @ApiPropertyOptional({
         description: 'Product care',
         example: 'Wash cold, do not bleach',
         maxLength: 200

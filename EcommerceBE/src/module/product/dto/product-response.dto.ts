@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Badge, Gender, ProductStatus } from '@prisma/client';
-import { IsEnum, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsEnum } from 'class-validator';
 
 export class ProductResponseDto {
     @ApiProperty({
@@ -23,23 +23,25 @@ export class ProductResponseDto {
     description: string | null;
 
     @ApiProperty({
+        description: 'Product category',
+        example: 'Electronics',
+    })
+    category: string | null;
+
+    @ApiProperty({
         description: 'Product price',
-        example: 99.99,
     })
     price: number;
 
     @ApiProperty({
         description: 'Product origin price',
-        example: 95.20,
     })
-    @IsNumber({maxDecimalPlaces: 2})
-    originPrice: number
+    originPrice: number | null;
 
     @ApiProperty({
         description: 'Product Status',
         enum: ProductStatus
     })
-    @IsNotEmpty()
     @IsEnum(ProductStatus)
     status: ProductStatus
 
@@ -54,6 +56,7 @@ export class ProductResponseDto {
         example: 'WH-001',
     })
     sku: string;
+    
 
     @ApiProperty({
         description: 'Product image url',
@@ -65,26 +68,23 @@ export class ProductResponseDto {
         description: 'Product care',
         example: 'Wash cold, do not bleach'
     })
-    care?: string
+    care: string | null
 
     @ApiProperty({
         description: 'Product material'
     })
-    @IsString()
-    material?: string
+    material: string | null
 
     @ApiProperty({
         description: 'Product variant'
     })
-    @IsString()
-    variant?: string
+    variant: string | null
 
     @ApiProperty({
         description: 'Product badge',
         enum: Badge
     })
     @IsEnum(Badge)
-    @IsNotEmpty()
     badge: Badge
 
     @ApiProperty({
@@ -92,20 +92,8 @@ export class ProductResponseDto {
         enum: Gender
     })
     @IsEnum(Gender)
-    @IsNotEmpty()
     gender: Gender
 
-    @ApiProperty({
-        description: 'Product category',
-        example: 'Electronics',
-    })
-    category: string | null;
-
-    @ApiProperty({
-        description: 'Product availability status',
-        example: true,
-    })
-    isActive: boolean;
 
     @ApiProperty({
         description: 'Creation timestamp',
