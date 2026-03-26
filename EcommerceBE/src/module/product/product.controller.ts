@@ -91,13 +91,84 @@ export class ProductController {
         status: 409,
         description: 'Sku already exists'
     })
-    async update(@Param('id') id: string, updateProductDto: UpdateProductDto): Promise<ProductResponseDto> {
+    async update(@Param('id') id: string,@Body() updateProductDto: UpdateProductDto): Promise<ProductResponseDto> {
         return await this.productService.update(id, updateProductDto)
     }
 
     @Patch(':id/status')
-    updateStatus(@Param('id') id: string, @Body() body: UpdateProductStatusDto){
+    @UseGuards(JwtAuthGuard, RoleGuard)
+    @Roles(Role.Admin)
+    @ApiBearerAuth('JWT-auth')
+    @ApiOperation({
+        summary: 'Update product stock (Admin Only)',
+    })
+    @ApiBody({
+    schema: {
+        type: 'object',
+        properties: {
+            status: {
+                type: 'string',
+                enum: Object.values(ProductStatus),
+            }
+        }
+    }
+})
+    @ApiResponse({
+        status: 200,
+        description: 'Stock updated successfully',
+        type: ProductResponseDto,
+    })
+    @ApiResponse({
+        status: 400,
+        description: 'Insufficient stock',
+    })
+    @ApiResponse({
+        status: 404,
+        description: 'Product not found',
+    })
+    updateStatus(@Param('id') id: string, @Body() body: UpdateProductStatusDto) {
         return this.productService.updateStatus(id, body.status)
+    }
+
+    @Patch(':id/stock')
+    @UseGuards(JwtAuthGuard, RoleGuard)
+    @Roles(Role.Admin)
+    @ApiBearerAuth('JWT-auth')
+    @ApiOperation({
+        summary: 'Update product stock (Admin Only)',
+    })
+    @ApiBody({
+        schema: {
+            type: 'object',
+            properties: {
+                quantity: {
+                    type: 'number',
+                    description:
+                        'Stock adjustment ( positive to add, negative to subtract) ',
+                    example: 10,
+                },
+            },
+            required: ['quantity'],
+        },
+    })
+    @ApiResponse({
+        status: 200,
+        description: 'Stock updated successfully',
+        type: ProductResponseDto,
+    })
+    @ApiResponse({
+        status: 400,
+        description: 'Insufficient stock',
+    })
+    @ApiResponse({
+        status: 404,
+        description: 'Product not found',
+    })
+    async updateStock(
+        @Param('id') id: string,
+        @Body('quantity') quantity: number,
+    ): Promise<ProductResponseDto> {
+        return await this.productService.updateStock(id, quantity)
     }
 
     @Delete(':id')
