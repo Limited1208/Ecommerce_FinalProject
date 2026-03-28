@@ -10,3 +10,6 @@ export const registerApi = (firstName, lastName, email, password) =>
 
 export const logoutApi = (userId) =>
     baseUrl.post("/auth/logout", { userId }).then((res) => res.data);
+
+export const forgotPasswordApi = (email) =>
+    baseUrl.patch("auth/forgotPassword", {email}).then((res) => res.data)

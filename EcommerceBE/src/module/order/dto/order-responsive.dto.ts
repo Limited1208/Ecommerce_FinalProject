@@ -1,39 +1,93 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { OrderStatus } from "@prisma/client";
+// DTO for order response
 
-export class OrderResponsiveApiDto<T>{
+import { ApiProperty } from '@nestjs/swagger';
+
+export class OrderApiResponseDto<T> {
     @ApiProperty({
-        description: 'Indicated if the request was successfully'
+        description: 'Indicates if the request was successfull',
     })
-    success: boolean
+    success: boolean;
 
     @ApiProperty({
-        description: 'Return data',
-        type: Object
+        description: 'Returned data',
+        type: Object,
     })
-    data: T
+    data: T;
 
     @ApiProperty({
         description: 'Optional message',
         nullable: true,
         required: false,
     })
-    message: string
+    message: string;
 }
 
-export class OrderResponsiveDto{
+export class OrderItemResponseDto {
     @ApiProperty()
-    id: string
+    id: string;
 
     @ApiProperty()
-    userId: string
+    productId: string;
 
     @ApiProperty()
-    static: OrderStatus
+    productName: string;
 
     @ApiProperty()
-    total: number
+    quantity: number;
 
     @ApiProperty()
-    shippingAddress: string
+    price: number;
+
+    @ApiProperty()
+    subtotal: number;
+
+    @ApiProperty()
+    createdAt: Date;
+
+    @ApiProperty()
+    updatedAt: Date;
+}
+
+export class OrderResponseDto {
+    @ApiProperty()
+    id: string;
+
+    @ApiProperty()
+    userId: string;
+
+    @ApiProperty()
+    status: string;
+
+    @ApiProperty()
+    total: number;
+
+    @ApiProperty()
+    shippingAddress: string;
+
+    @ApiProperty({
+        type: [OrderItemResponseDto],
+    })
+    items: OrderItemResponseDto[];
+
+    @ApiProperty()
+    createdAt: Date;
+
+    @ApiProperty()
+    updatedAt: Date;
+}
+
+export class PaginatedOrderResponseDto {
+    @ApiProperty({
+        type: [OrderResponseDto],
+    })
+    data: OrderResponseDto[];
+
+    @ApiProperty()
+    total: number;
+
+    @ApiProperty()
+    page: number;
+
+    @ApiProperty()
+    limit: number;
 }

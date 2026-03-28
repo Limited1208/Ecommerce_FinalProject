@@ -21,16 +21,16 @@ class OrderItemDto {
             maxDecimalPlaces: 2,
         },
         {
-            message: ''
+            message: 'Price must be a valid number (e.g., 49.99)'
         }
     )
     @Type(() => Number)
-    total: number
+    price: number
 
 }
 
 export class CreateOrderDto {
-    @ApiProperty()
+    @ApiProperty({ type: [OrderItemDto]})
     @IsArray()
     @ValidateNested({ each: true})
     @Type(() => OrderItemDto)

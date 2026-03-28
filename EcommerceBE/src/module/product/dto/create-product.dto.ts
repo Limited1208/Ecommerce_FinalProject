@@ -120,7 +120,7 @@ export class CreateProductDto {
 
     @ApiProperty({
         description: 'Product category',
-        example: 'running',
+        example: '74641fcd-4043-4ede-b006-8dbd18187a63',
         required: true,
     })
     @IsString()
