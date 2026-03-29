@@ -37,7 +37,15 @@ baseUrl.interceptors.response.use(
         if (status === 401) {
             localStorage.removeItem("token");
             localStorage.removeItem("user");
-            if (!window.location.pathname.includes("/login")) {
+            const path = window.location.pathname;
+            if (path.includes("/login") || path.includes("/register")) {
+                return Promise.reject(err);
+            }
+            if (path.startsWith("/admin")) {
+                localStorage.removeItem("adminToken");
+                localStorage.removeItem("adminUser");
+                window.location.href = "/admin/login";
+            } else {
                 window.location.href = "/login";
             }
         }

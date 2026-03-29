@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, HttpStatus, Patch, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, HttpCode, HttpStatus, Patch, Post, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { AuthResponserDto } from './dto/auth-response.dto';
@@ -6,7 +6,10 @@ import { RefreshTokenGuard } from './guards/refresh-token.guard';
 import { GetUser } from 'src/common/decorators/get-user.decorator';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.decorator';
 import { LoginDto } from './dto/login.dto';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { RoleGuard } from './guards/role.guard';
+import { Roles } from 'src/common/decorators/roles.decorator';
+import { Role } from '@prisma/client';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -56,5 +59,17 @@ export class AuthController {
     @HttpCode(HttpStatus.OK)
     async login(@Body() loginDto: LoginDto): Promise<AuthResponserDto> {
         return this.authService.login(loginDto);
+    }
+
+    @Post('/admin/login')
+    @HttpCode(HttpStatus.OK)
+    async adminLogin(@Body() loginDto: LoginDto): Promise<AuthResponserDto> {
+        const result = await this.authService.login(loginDto);
+
+        if(result.user.role !== Role.Admin && result.user.role !== Role.Manager){
+            throw new UnauthorizedException('Admin access only');
+        }
+
+        return result;
     }
 }

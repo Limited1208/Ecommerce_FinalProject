@@ -1,9 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserResponseDto } from './dto/user-response.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import * as bcrypt from 'bcrypt';
+import { Role } from '@prisma/client';
 
 @Injectable()
 export class UsersService {
@@ -113,6 +114,33 @@ export class UsersService {
         });
 
         return { message: 'Password changed successfully' }
+    }
+
+    async changeRole(userId: string, role: Role) : Promise<{message: string}>{
+        const user = await this.prisma.user.findUnique({
+            where: {id: userId}
+        });
+
+        if(!user){
+            throw new NotFoundException('User not found.')
+        }
+        
+        if(user.role === role){
+            throw new BadRequestException(`User already has role ${role}`)
+        }
+
+        if(!Object.values(Role).includes(role)){
+            throw new BadRequestException('Invalid role value')
+        }
+
+        if(user.id)
+        
+        await this.prisma.user.update({
+            where:{id: userId},
+            data: {role: role},
+        })
+
+        return {message: 'Role changed successfully'}
     }
 
     async deleteAccount(userId: string): Promise<{ message: string }> {

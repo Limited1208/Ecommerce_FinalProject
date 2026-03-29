@@ -1,11 +1,11 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Req, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Patch, Query, Req, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiProperty, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.decorator';
 import { RoleGuard } from '../auth/guards/role.guard';
 import { UsersService } from './users.service';
 import type { RequestWithUser } from 'src/common/interfaces/request-with-user.interface';
 import { UserResponseDto } from './dto/user-response.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateUserDto, UpdateUserRoleDto } from './dto/update-user.dto';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { Role } from '@prisma/client';
 import { GetUser } from 'src/common/decorators/get-user.decorator';
@@ -69,7 +69,7 @@ export class UsersController {
     })
     @ApiResponse({ status: 401, description: 'Unauthorized' })
     @ApiResponse({ status: 409, description: 'Email already in use' })
-    async updateProfile(userId: string, @Body() updateProfile: UpdateUserDto): Promise<UserResponseDto> {
+    async updateProfile(@GetUser('id') userId: string, @Body() updateProfile: UpdateUserDto): Promise<UserResponseDto> {
         return this.userService.update(userId, updateProfile)
     }
 
@@ -80,6 +80,18 @@ export class UsersController {
     @ApiResponse({ status: 401, description: 'Unauthorized' })
     async changePassword(@GetUser('id') userId: string, @Body() changePasswordDto: ChangePasswordDto): Promise<{ message: string }> {
         return this.userService.changePassword(userId, changePasswordDto)
+    }
+
+    @Patch(':id/role')
+    @Roles(Role.Admin)
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({summary: 'Change user role'})
+    @ApiResponse({status: 200, description: 'Change account role successfully'})
+    @ApiResponse({status: 401, description: 'Unauthorized'})
+    @ApiResponse({ status: 403, description: 'Forbidden' })
+    @ApiResponse({status: 400, description: 'BadRequest'})
+    async changeRole(@Param('id') userId: string,@Body() body: UpdateUserRoleDto) : Promise<{message: string}>{
+        return this.userService.changeRole(userId, body.role);
     }
 
     @Delete('me')

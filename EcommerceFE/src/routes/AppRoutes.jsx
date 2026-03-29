@@ -10,11 +10,35 @@ import RegisterPage from "../pages/registerPage";
 import CheckoutPage from "../pages/checkOutPage";
 import ProfilePage from "../pages/profilePage";
 import ForgotPasswordPage from "../pages/fotgotPasswordPage";
+import AdminLoginPage from "../pages/admin/AdminLoginPage";
+import AdminDashboard from "../pages/admin/AdminDashboard";
+import AdminProductsPage from "../pages/admin/AdminProductsPage";
+import AdminUsersPage from "../pages/admin/AdminUsersPage";
+import AdminCategoriesPage from "../pages/admin/AdminCategoriesPage";
+import AdminOrdersPage from "../pages/admin/AdminOrdersPage";
+import AdminLayout from "../components/admin/AdminLayout";
+import AdminRoute from "../components/admin/AdminRoute";
 
 function AppRoutes() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/admin/login" element={<AdminLoginPage />} />
+        <Route
+          path="/admin"
+          element={
+            <AdminRoute>
+              <AdminLayout />
+            </AdminRoute>
+          }
+        >
+          <Route index element={<AdminDashboard />} />
+          <Route path="products" element={<AdminProductsPage />} />
+          <Route path="users" element={<AdminUsersPage />} />
+          <Route path="categories" element={<AdminCategoriesPage />} />
+          <Route path="orders" element={<AdminOrdersPage />} />
+        </Route>
+
         <Route element={<Layout />}>
 
           <Route path="/" element={<Home />} />
