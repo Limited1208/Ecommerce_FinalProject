@@ -407,7 +407,7 @@ export default function CheckoutPage() {
                                     {placing ? <><LoadingSpinner size={16} color="#ff6b00" /> Placing Order…</> : `Place Order · ${fmt(total)}`}
                                 </button>
 
-                                <p className="text-center text-[11px] text-[#2a1500] tracking-wide">
+                                <p className="text-center text-[11px] text-gray-400 tracking-wide">
                                     🔒 Your payment information is encrypted and secure
                                 </p>
                             </div>
