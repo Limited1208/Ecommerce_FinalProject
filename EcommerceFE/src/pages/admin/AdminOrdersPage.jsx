@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { FiEdit2, FiPlus, FiTrash2 } from "react-icons/fi";
 import { usePageTitle } from "../../hooks/usePageTitle";
-import { resolveAdminOrders, persistOrders, tryDeleteOrder } from "../../api/adminApi";
+import { persistOrders, tryDeleteOrder } from "../../api/adminApi";
+import { fetchAdminOrders } from "../../api/adminApi";
 import { tw } from "../../assets/theme";
 import AdminPageShell from "../../components/admin/AdminPageShell";
 import AdminModal from "../../components/admin/AdminModal";
@@ -30,7 +31,7 @@ export default function AdminOrdersPage() {
     const [form, setForm] = useState(null);
 
     const reload = useCallback(() => {
-        resolveAdminOrders().then((data) => {
+        fetchAdminOrders().then((data) => {
             setRows(data);
             setLoading(false);
         });

@@ -1,0 +1,153 @@
+import { gradients, shadows, tw } from "../../assets/theme";
+import AdminModal from "./AdminModal";
+
+
+export default function AdminProductModal({ form, setForm, isEdit, onClose, onSave, categoryOptions = [] }) {
+
+  const setF   = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
+  const setNum = (key) => (e) => setForm((f) => ({ ...f, [key]: parseFloat(e.target.value) || 0 }));
+  const setInt = (key) => (e) => setForm((f) => ({ ...f, [key]: parseInt(e.target.value)  || 0 }));
+
+  return (
+    <AdminModal
+      title={isEdit ? "Edit Product" : "New Product"}
+      onClose={onClose}
+      wide
+      footer={
+        <>
+          <button type="button" onClick={onClose}
+            className={`${tw.btnGhost} py-2 px-4 text-[11px]`}>
+            Cancel
+          </button>
+          <button type="button" onClick={onSave}
+            className="py-2 px-5 rounded-lg text-[11px] font-bold tracking-widest uppercase text-white cursor-pointer border-none hover:scale-[1.02] transition-all"
+            style={{ background: gradients.brand, boxShadow: shadows.btnGlow }}>
+            Save
+          </button>
+        </>
+      }
+    >
+      <div className="flex flex-col gap-5">
+
+        {/* name + sku */}
+        <div className="grid grid-cols-2 gap-4">
+          <div className="flex flex-col gap-1.5">
+            <label className={tw.label}>Name <span className="text-[#ff0040]">*</span></label>
+            <input className={tw.input} placeholder="T-Shirt Basic"
+              value={form.name ?? ""} onChange={setF("name")} required />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <label className={tw.label}>SKU</label>
+            <input className={tw.input} placeholder="SKU-12345"
+              value={form.sku ?? ""} onChange={setF("sku")} />
+          </div>
+        </div>
+
+        {/* description */}
+        <div className="flex flex-col gap-1.5">
+          <label className={tw.label}>Description</label>
+          <textarea rows={3} className={`${tw.input} resize-none`}
+            placeholder="High quality cotton t-shirt…"
+            value={form.description ?? ""} onChange={setF("description")} />
+        </div>
+
+        {/* price + originPrice + stock */}
+        <div className="grid grid-cols-3 gap-4">
+          <div className="flex flex-col gap-1.5">
+            <label className={tw.label}>Price <span className="text-[#ff0040]">*</span></label>
+            <input type="number" step="0.01" min="0" className={tw.input} placeholder="19.99"
+              value={form.price ?? ""} onChange={setNum("price")} required />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <label className={tw.label}>originPrice</label>
+            <input type="number" step="0.01" min="0" className={tw.input} placeholder="29.99"
+              value={form.originPrice ?? ""}
+              onChange={(e) => setForm((f) => ({ ...f, originPrice: parseFloat(e.target.value) || null }))} />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <label className={tw.label}>stock</label>
+            <input type="number" min="0" className={tw.input} placeholder="100"
+              value={form.stock ?? ""} onChange={setInt("stock")} />
+          </div>
+        </div>
+
+        {/* categoryId + gender + status */}
+        <div className="grid grid-cols-3 gap-4">
+          <div className="flex flex-col gap-1.5">
+            <label className={tw.label}>categoryId <span className="text-[#ff0040]">*</span></label>
+            <select className={tw.select}
+              value={form.categoryId ?? ""}
+              onChange={(e) => setForm((f) => ({ ...f, categoryId: e.target.value }))}>
+              <option value="">— Select —</option>
+              {categoryOptions.map((c) => (
+                <option key={c.id} value={c.id}>{c.name}</option>
+              ))}
+            </select>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <label className={tw.label}>gender</label>
+            <select className={tw.select} value={form.gender ?? "Men"} onChange={setF("gender")}>
+              <option value="Kid">Kid</option>
+              <option value="Men">Men</option>
+              <option value="Women">Women</option>
+            </select>
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <label className={tw.label}>status</label>
+            <select className={tw.select} value={form.status ?? "InStock"} onChange={setF("status")}>
+              <option value="InStock">InStock</option>
+              <option value="OutOfStock">OutOfStock</option>
+              <option value="ACTIVE">ACTIVE</option>
+              <option value="DRAFT">DRAFT</option>
+            </select>
+          </div>
+        </div>
+
+        {/* badge + variant */}
+        <div className="grid grid-cols-2 gap-4">
+          <div className="flex flex-col gap-1.5">
+            <label className={tw.label}>badge</label>
+            <input className={tw.input} placeholder="BestSeller · New · Sale"
+              value={form.badge ?? ""}
+              onChange={(e) => setForm((f) => ({ ...f, badge: e.target.value.trim() || null }))} />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <label className={tw.label}>variant</label>
+            <input className={tw.input} placeholder="Size M - Black"
+              value={form.variant ?? ""} onChange={setF("variant")} />
+          </div>
+        </div>
+
+        {/* imageUrl + preview */}
+        <div className="flex flex-col gap-1.5">
+          <label className={tw.label}>imageUrl</label>
+          <div className="flex gap-3 items-center">
+            <input className={`${tw.input} flex-1`} placeholder="https://example.com/image.jpg"
+              value={form.imageUrl ?? ""}
+              onChange={(e) => setForm((f) => ({ ...f, imageUrl: e.target.value }))} />
+            {form.imageUrl && (
+              <img src={form.imageUrl} alt="preview"
+                className="w-10 h-10 rounded-lg object-cover flex-shrink-0 border border-[#2a1500]"
+                onError={(e) => { e.target.style.display = "none"; }} />
+            )}
+          </div>
+        </div>
+
+        {/* material + care */}
+        <div className="grid grid-cols-2 gap-4">
+          <div className="flex flex-col gap-1.5">
+            <label className={tw.label}>material</label>
+            <input className={tw.input} placeholder="Cotton 100%"
+              value={form.material ?? ""} onChange={setF("material")} />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <label className={tw.label}>care</label>
+            <input className={tw.input} placeholder="Wash cold, do not bleach"
+              value={form.care ?? ""} onChange={setF("care")} />
+          </div>
+        </div>
+
+      </div>
+    </AdminModal>
+  );
+}

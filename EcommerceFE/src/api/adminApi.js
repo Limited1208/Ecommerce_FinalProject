@@ -1,8 +1,5 @@
 import baseUrl from "./config";
 import adminClient from "./adminClient";
-import { PRODUCTS, CATEGORIES } from "../data/constants";
-import { MOCK_ADMIN_USERS, MOCK_ADMIN_ORDERS } from "../data/adminMocks";
-import { adminLocal } from "../utils/adminLocalStore";
 
 /**
  * POST /admin/login — body: { email, password }
@@ -25,165 +22,111 @@ function firstArray(payload, keys) {
     return [];
 }
 
-function derivedCategories() {
-    return CATEGORIES.filter((c) => c !== "All").map((name) => ({
-        name,
-        productCount: PRODUCTS.filter((p) => p.category === name).length,
-    }));
-}
-
 /** GET /admin/products — on error uses storefront mock catalog. */
 export async function fetchAdminProducts() {
     try {
-        const { data } = await adminClient.get("/admin/products");
+        const { data } = await adminClient.get("/products", { params: { isActive: true, status: "InStock", page: 1, limit: 10 } });
         return firstArray(data, ["products", "content", "items", "data"]);
     } catch {
-        return PRODUCTS;
+        return [];
     }
 }
 
 /** GET /admin/users */
 export async function fetchAdminUsers() {
     try {
-        const { data } = await adminClient.get("/admin/users");
+        const { data } = await adminClient.get("/users", { params: { page: 1, limit: 10 } });
         return firstArray(data, ["users", "content", "items", "data"]);
     } catch {
-        return MOCK_ADMIN_USERS;
+        return [];
     }
 }
 
 /** GET /admin/categories — on empty/error uses counts from local catalog. */
 export async function fetchAdminCategories() {
     try {
-        const { data } = await adminClient.get("/admin/categories");
+        const { data } = await adminClient.get("/categories", { params: { page: 1, limit: 10 } });
         const list = firstArray(data, ["categories", "content", "items", "data"]);
         if (list.length) return list;
     } catch {
-        return derivedCategories();
+        return [];
     }
-    return derivedCategories();
+    return [];
 }
 
 /** GET /admin/orders */
 export async function fetchAdminOrders() {
     try {
-        const { data } = await adminClient.get("/admin/orders");
+        const { data } = await adminClient.get("/orders/admin/all", { params: { page: 1, limit: 10 } });
         return firstArray(data, ["orders", "content", "items", "data"]);
     } catch {
-        return MOCK_ADMIN_ORDERS;
+        return [];
     }
 }
 
-/* ── Resolved lists (localStorage overrides remote after first save) ── */
 
-export async function resolveAdminProducts() {
-    const local = adminLocal.loadProducts();
-    if (local !== null) return local;
-    return fetchAdminProducts();
+export function getProductsForCategoryCount() { 
+    return [];
 }
 
-export async function resolveAdminUsers() {
-    const local = adminLocal.loadUsers();
-    if (local !== null) return local;
-    return fetchAdminUsers();
+export function defaultNewProduct() {
+    return {};
 }
 
-export async function resolveAdminOrders() {
-    const local = adminLocal.loadOrders();
-    if (local !== null) return local;
-    return fetchAdminOrders();
+export function getCategoryOptions() {
+    return fetchAdminCategories().then((data) => data.map((c) => ({ id: c.id, name: c.name })));
 }
 
-/** Categories: optional local list; counts recomputed from products. */
-export async function resolveAdminCategories() {
-    const local = adminLocal.loadCategories();
-    const base =
-        local !== null
-            ? local
-            : await fetchAdminCategories();
-    return applyCategoryCounts(base);
+export async function createProduct(product) {
+    try {
+        const res = await adminClient.post("/products", product);
+        return res.data;
+    } catch (err) {
+        console.error("Create product error:", err.response?.data || err.message);
+        throw err; // 🔥 rethrow so UI can handle it
+    }
 }
 
-export function getProductsForCategoryCount() {
-    const p = adminLocal.loadProducts();
-    return p !== null ? p : PRODUCTS;
-}
-
-export function applyCategoryCounts(rows) {
-    const products = getProductsForCategoryCount();
-    return rows.map((row) => {
-        const name = row.name ?? row.title ?? row.label ?? "";
-        return {
-            ...row,
-            name,
-            productCount: products.filter((p) => p.category === name).length,
-        };
-    });
-}
-
-export function nextProductId(products) {
-    const nums = products.map((p) => Number(p.id)).filter((n) => !Number.isNaN(n));
-    return (nums.length ? Math.max(...nums) : 0) + 1;
-}
-
-export function defaultNewProduct(id) {
-    return {
-        id,
-        name: "New product",
-        category: "Running",
-        gender: "men",
-        price: 29.99,
-        badge: null,
-        image:
-            "https://images.unsplash.com/photo-1556906781-9a412961a28c?w=500&h=600&fit=crop",
-        variant: "Default",
-        description: "Description added from admin.",
-        material: "—",
-        care: "—",
-        sizes: ["S", "M", "L", "XL"],
-        sizeChart: {
-            headers: ["Size", "Chest (cm)"],
-            rows: [
-                ["S", "—"],
-                ["M", "—"],
-            ],
-        },
-    };
+export async function createCategory(category) {
+    try {
+        const res = await adminClient.post("/categories", category);
+        return res.data;
+    } catch (err) {
+        console.error("Create category error:", err.response?.data || err.message);
+        throw err; 
+    }
 }
 
 /* ── Persist attempts (API first; always save local copy for offline) ── */
 
-export async function persistProducts(list) {
-    adminLocal.saveProducts(list);
+export async function persistProducts(id, list) {
     try {
-        await adminClient.put("/admin/products", { products: list });
+        await adminClient.patch(`/products/${id}`, list);
     } catch {
         /* local-only */
     }
 }
 
-export async function persistUsers(list) {
-    adminLocal.saveUsers(list);
+export async function persistUsers(id, list) {
     try {
-        await adminClient.put("/admin/users", { users: list });
+        console.log(id, list)
+        await adminClient.patch(`/users/${id}`, list);
     } catch {
         /* local-only */
     }
 }
 
-export async function persistCategories(list) {
-    adminLocal.saveCategories(list);
+export async function persistCategories(id, list) {
     try {
-        await adminClient.put("/admin/categories", { categories: list });
+        await adminClient.patch(`categories/${id}`, list);
     } catch {
         /* local-only */
     }
 }
 
 export async function persistOrders(list) {
-    adminLocal.saveOrders(list);
     try {
-        await adminClient.put("/admin/orders", { orders: list });
+        await adminClient.patch("/orders", list);
     } catch {
         /* local-only */
     }
@@ -191,7 +134,7 @@ export async function persistOrders(list) {
 
 export async function tryDeleteProduct(id) {
     try {
-        await adminClient.delete(`/admin/products/${id}`);
+        await adminClient.delete(`/products/${id}`);
     } catch {
         /* local-only */
     }
@@ -199,15 +142,15 @@ export async function tryDeleteProduct(id) {
 
 export async function tryDeleteUser(id) {
     try {
-        await adminClient.delete(`/admin/users/${id}`);
+        await adminClient.delete(`/users/${id}`);
     } catch {
         /* local-only */
     }
 }
 
-export async function tryDeleteCategory(slugOrName) {
+export async function tryDeleteCategory(id) {
     try {
-        await adminClient.delete(`/admin/categories/${encodeURIComponent(slugOrName)}`);
+        await adminClient.delete(`/categories/${id}`);
     } catch {
         /* local-only */
     }
@@ -215,7 +158,7 @@ export async function tryDeleteCategory(slugOrName) {
 
 export async function tryDeleteOrder(orderId) {
     try {
-        await adminClient.delete(`/admin/orders/${encodeURIComponent(orderId)}`);
+        await adminClient.delete(`/orders/${orderId}`);
     } catch {
         /* local-only */
     }

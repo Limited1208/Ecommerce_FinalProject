@@ -2,15 +2,17 @@ import { useCallback, useEffect, useState } from "react";
 import { FiEdit2, FiPlus, FiTrash2 } from "react-icons/fi";
 import { usePageTitle } from "../../hooks/usePageTitle";
 import {
-    resolveAdminCategories,
     persistCategories,
     tryDeleteCategory,
     getProductsForCategoryCount,
+    fetchAdminCategories,
+    createCategory,
 } from "../../api/adminApi";
 import { tw } from "../../assets/theme";
 import AdminPageShell from "../../components/admin/AdminPageShell";
 import AdminModal from "../../components/admin/AdminModal";
 import AdminConfirmDialog from "../../components/admin/AdminConfirmDialog";
+import AdminCategoryModal from "../../components/admin/AdminCategoryModal";
 
 function slugify(name) {
     return name
@@ -29,7 +31,7 @@ export default function AdminCategoriesPage() {
     const [form, setForm] = useState(null);
 
     const reload = useCallback(() => {
-        resolveAdminCategories().then((data) => {
+        fetchAdminCategories().then((data) => {
             setRows(data);
             setLoading(false);
         });
@@ -50,41 +52,55 @@ export default function AdminCategoriesPage() {
     const openEdit = (row) => {
         const n = nameOf(row);
         setForm({
+            id: row.id,
             name: n,
+            description: row.description || "",
             slug: row.slug ?? slugify(n),
+            imageUrl: row.imageUrl || "",
             _prevSlug: rowSlug(row),
         });
         setModal(true);
     };
 
     const saveCategory = async () => {
-        if (!form?.name?.trim()) return;
-        const name = form.name.trim();
-        const slug = (form.slug || slugify(name)).trim() || slugify(name);
-        const products = getProductsForCategoryCount();
-        const countFor = (catName) => products.filter((p) => p.category === catName).length;
+    if (!form?.name?.trim()) return;
 
-        let next;
-        if (form._prevSlug !== undefined) {
-            next = rows.map((r) => {
-                if (rowSlug(r) === form._prevSlug) {
-                    return { ...r, name, slug, productCount: countFor(name) };
-                }
-                return { ...r, productCount: countFor(nameOf(r)) };
-            });
+    const name = form.name.trim();
+    const slug = (form.slug || slugify(name)).trim();
+
+    const payload = {
+        name,
+        description: form.description || "",
+        slug,
+        imageUrl: form.imageUrl || "",
+        isActive: form.isActive ?? true,
+    };
+
+    try {
+        let updated;
+
+        if (form.id) {
+            await persistCategories(form.id, payload);
+
+            updated = rows.map((r) =>
+                r.id === form.id ? { ...r, ...payload } : r
+            );
         } else {
-            next = [...rows, { name, slug, productCount: countFor(name) }];
+            const newCat = await createCategory(payload);
+
+            updated = [...rows, newCat];
         }
 
-        setRows(next);
-        await persistCategories(next);
+        setRows(updated);
         setModal(false);
         setForm(null);
-    };
+    } catch (err) {
+        console.error(err);
+    }
+};
 
     const confirmDelete = async () => {
         if (!deleteTarget) return;
-        const name = nameOf(deleteTarget);
         const slug = rowSlug(deleteTarget);
         const next = rows.filter((r) => rowSlug(r) !== slug);
         setRows(next);
@@ -183,52 +199,22 @@ export default function AdminCategoriesPage() {
             </div>
 
             {modal && form && (
-                <AdminModal
-                    title={form._prevSlug !== undefined ? "Edit category" : "New category"}
-                    onClose={() => {
-                        setModal(false);
-                        setForm(null);
-                    }}
-                    footer={
-                        <>
-                            <button type="button" onClick={() => setModal(false)} className={`${tw.btnGhost} py-2 px-4 text-[11px]`}>
-                                Cancel
-                            </button>
-                            <button
-                                type="button"
-                                onClick={saveCategory}
-                                className={`${tw.btnPrimary} py-2 px-4 text-[11px]`}
-                                style={{ background: "linear-gradient(135deg, #ff6b00, #ff0040)" }}
-                            >
-                                Save
-                            </button>
-                        </>
-                    }
-                >
-                    <label className={tw.label}>Name</label>
-                    <input
-                        className={tw.input}
-                        value={form.name}
-                        onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                    />
-                    <label className={tw.label}>Slug</label>
-                    <input
-                        className={tw.input}
-                        placeholder="auto from name if empty"
-                        value={form.slug ?? ""}
-                        onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))}
-                    />
-                </AdminModal>
+                <AdminCategoryModal
+                    form={form}
+                    setForm={setForm}
+                    isEdit={form._prevSlug !== undefined}
+                    onClose={() => { setModal(false); setForm(null); }}
+                    onSave={saveCategory}
+                />
             )}
 
             {deleteTarget && (
                 <AdminConfirmDialog
                     title="Delete category?"
-                    message={`Remove “${nameOf(deleteTarget)}”?${
-                        productsInCategory > 0
-                            ? ` ${productsInCategory} product(s) still use this category label — update those products if you rename or remove it.`
-                            : ""
-                    }`}
+                    message={`Remove “${nameOf(deleteTarget)}”?${productsInCategory > 0
+                        ? ` ${productsInCategory} product(s) still use this category label — update those products if you rename or remove it.`
+                        : ""
+                        }`}
                     confirmLabel="Delete"
                     danger
                     onCancel={() => setDeleteTarget(null)}

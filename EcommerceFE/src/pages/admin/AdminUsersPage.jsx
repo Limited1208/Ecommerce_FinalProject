@@ -2,9 +2,9 @@ import { useCallback, useEffect, useState } from "react";
 import { FiEdit2, FiPlus, FiTrash2 } from "react-icons/fi";
 import { usePageTitle } from "../../hooks/usePageTitle";
 import {
-    resolveAdminUsers,
     persistUsers,
     tryDeleteUser,
+    fetchAdminUsers,
 } from "../../api/adminApi";
 import { tw } from "../../assets/theme";
 import AdminPageShell from "../../components/admin/AdminPageShell";
@@ -18,11 +18,6 @@ function displayName(u) {
     return u.name ?? u.fullName ?? "—";
 }
 
-function nextUserId(users) {
-    const nums = users.map((u) => Number(u.id)).filter((n) => !Number.isNaN(n));
-    return (nums.length ? Math.max(...nums) : 0) + 1;
-}
-
 export default function AdminUsersPage() {
     usePageTitle("Admin · Users");
     const [rows, setRows] = useState([]);
@@ -32,7 +27,7 @@ export default function AdminUsersPage() {
     const [form, setForm] = useState(null);
 
     const reload = useCallback(() => {
-        resolveAdminUsers().then((data) => {
+        fetchAdminUsers().then((data) => {
             setRows(data);
             setLoading(false);
         });
@@ -44,7 +39,7 @@ export default function AdminUsersPage() {
 
     const openCreate = () => {
         setForm({
-            id: nextUserId(rows),
+            id: 0,
             email: "",
             firstName: "",
             lastName: "",
@@ -64,7 +59,7 @@ export default function AdminUsersPage() {
         const exists = rows.some((r) => r.id === form.id);
         const next = exists ? rows.map((r) => (r.id === form.id ? { ...form } : r)) : [...rows, { ...form }];
         setRows(next);
-        await persistUsers(next);
+        await persistUsers(form.id, next);
         setModal(false);
         setForm(null);
     };

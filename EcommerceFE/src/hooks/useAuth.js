@@ -37,11 +37,11 @@ export function useRegister() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
 
-    const register = async ({ email, password, firstName, lastName }) => {
+    const register = async ({ firstName, lastName, email, password}) => {
         setLoading(true);
         setError("");
         try {
-            const data = await registerApi(email, password, firstName, lastName);
+            const data = await registerApi(firstName, lastName, email, password);
 
             // Save token + user info — adjust field names to match your API response
             localStorage.setItem("token", data.token ?? data.accessToken ?? "");

@@ -3,19 +3,38 @@ import { Link } from "react-router-dom";
 import { FiEdit2, FiExternalLink, FiPlus, FiTrash2 } from "react-icons/fi";
 import { usePageTitle } from "../../hooks/usePageTitle";
 import {
-    resolveAdminProducts,
     persistProducts,
     tryDeleteProduct,
-    nextProductId,
     defaultNewProduct,
+    fetchAdminProducts,
+    getCategoryOptions,
+    createProduct,
 } from "../../api/adminApi";
-import { CATEGORIES } from "../../data/constants";
 import { tw } from "../../assets/theme";
 import AdminPageShell from "../../components/admin/AdminPageShell";
-import AdminModal from "../../components/admin/AdminModal";
 import AdminConfirmDialog from "../../components/admin/AdminConfirmDialog";
+import AdminProductModal from "../../components/admin/AdminProductModal";
 
-const CATEGORY_OPTIONS = CATEGORIES.filter((c) => c !== "All");
+
+
+export function buildProductPayload(form) {
+    return {
+      name:        form.name?.trim()        ?? "",
+      sku:         form.sku?.trim()         ?? "",
+      description: form.description?.trim() ?? "",
+      price:       Number(form.price)       || 0,
+      originPrice: form.originPrice         ? Number(form.originPrice) : null,
+      stock:       Number(form.stock)       || 0,
+      imageUrl:    form.imageUrl?.trim()    ?? "",
+      status:      form.status              ?? "InStock",
+      care:        form.care?.trim()        ?? "",
+      material:    form.material?.trim()    ?? "",
+      variant:     form.variant?.trim()     ?? "",
+      badge:       form.badge?.trim()       || null,
+      gender:      form.gender              ?? "Men",
+      categoryId:  form.categoryId          ?? "",
+    };
+  }
 
 export default function AdminProductsPage() {
     usePageTitle("Admin · Products");
@@ -25,8 +44,16 @@ export default function AdminProductsPage() {
     const [deleteTarget, setDeleteTarget] = useState(null);
     const [form, setForm] = useState(null);
 
+    const [categoryOptions, setCategoryOptions] = useState([]);
+
+    useEffect(() => {
+        getCategoryOptions().then((data) => {
+            setCategoryOptions(data);
+        });
+    }, []);
+
     const reload = useCallback(() => {
-        resolveAdminProducts().then((data) => {
+        fetchAdminProducts().then((data) => {
             setRows(data);
             setLoading(false);
         });
@@ -42,8 +69,7 @@ export default function AdminProductsPage() {
             : "—";
 
     const openCreate = () => {
-        const id = nextProductId(rows);
-        const draft = defaultNewProduct(id);
+        const draft = defaultNewProduct();
         setForm(draft);
         setModal("edit");
     };
@@ -53,14 +79,26 @@ export default function AdminProductsPage() {
         setModal("edit");
     };
 
+
     const saveProduct = async () => {
         if (!form) return;
-        const exists = rows.some((r) => r.id === form.id);
-        const next = exists ? rows.map((r) => (r.id === form.id ? { ...form } : r)) : [...rows, { ...form }];
-        setRows(next);
-        await persistProducts(next);
-        setModal(null);
-        setForm(null);
+    
+        try {
+            if (form.id) {
+                // UPDATE
+                await persistProducts(form.id, buildProductPayload(form));
+            } else {
+                // CREATE
+                console.log(form)
+                await createProduct(buildProductPayload(form));
+            }
+    
+            await reload(); // ✅ always reload from backend
+            setModal(null);
+            setForm(null);
+        } catch (err) {
+            console.error(err);
+        }
     };
 
     const confirmDelete = async () => {
@@ -69,6 +107,7 @@ export default function AdminProductsPage() {
         const next = rows.filter((r) => r.id !== id);
         setRows(next);
         await tryDeleteProduct(id);
+        console.log(id);
         await persistProducts(next);
         setDeleteTarget(null);
     };
@@ -129,8 +168,8 @@ export default function AdminProductsPage() {
                                     </td>
                                 </tr>
                             ) : (
-                                rows.map((p) => (
-                                    <tr key={p.id} className="hover:bg-[#160a00]/80 transition-colors">
+                                rows.map((p, index) => (
+                                    <tr key={p.id ?? `row-${index}`} className="hover:bg-[#160a00]/80 transition-colors">
                                         <td className="py-3 px-4 text-white font-mono text-xs">{p.id}</td>
                                         <td className="py-3 px-4 text-white">{p.name}</td>
                                         <td className="py-3 px-4">{p.category ?? "—"}</td>
@@ -175,74 +214,14 @@ export default function AdminProductsPage() {
             </div>
 
             {modal === "edit" && form && (
-                <AdminModal
-                    title={rows.some((r) => r.id === form.id) ? "Edit product" : "New product"}
-                    onClose={() => {
-                        setModal(null);
-                        setForm(null);
-                    }}
-                    footer={
-                        <>
-                            <button type="button" onClick={() => setModal(null)} className={`${tw.btnGhost} py-2 px-4 text-[11px]`}>
-                                Cancel
-                            </button>
-                            <button
-                                type="button"
-                                onClick={saveProduct}
-                                className={`${tw.btnPrimary} py-2 px-4 text-[11px]`}
-                                style={{ background: "linear-gradient(135deg, #ff6b00, #ff0040)" }}
-                            >
-                                Save
-                            </button>
-                        </>
-                    }
-                >
-                    <label className={tw.label}>Name</label>
-                    <input
-                        className={tw.input}
-                        value={form.name}
-                        onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                    />
-                    <label className={tw.label}>Category</label>
-                    <select
-                        className={tw.select}
-                        value={form.category}
-                        onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))}
-                    >
-                        {CATEGORY_OPTIONS.map((c) => (
-                            <option key={c} value={c}>
-                                {c}
-                            </option>
-                        ))}
-                    </select>
-                    <label className={tw.label}>Price (USD)</label>
-                    <input
-                        type="number"
-                        step="0.01"
-                        min="0"
-                        className={tw.input}
-                        value={form.price}
-                        onChange={(e) => setForm((f) => ({ ...f, price: parseFloat(e.target.value) || 0 }))}
-                    />
-                    <label className={tw.label}>Badge (optional)</label>
-                    <input
-                        className={tw.input}
-                        placeholder="e.g. New, Sale"
-                        value={form.badge ?? ""}
-                        onChange={(e) =>
-                            setForm((f) => ({
-                                ...f,
-                                badge: e.target.value.trim() || null,
-                            }))
-                        }
-                    />
-                    <label className={tw.label}>Image URL</label>
-                    <input
-                        className={tw.input}
-                        value={form.image ?? ""}
-                        onChange={(e) => setForm((f) => ({ ...f, image: e.target.value }))}
-                    />
-                </AdminModal>
+                <AdminProductModal
+                    form={form}
+                    setForm={setForm}
+                    isEdit={rows.some((r) => r.id === form.id)}
+                    onClose={() => { setModal(null); setForm(null); }}
+                    onSave={saveProduct}
+                    categoryOptions={categoryOptions}
+                />
             )}
 
             {deleteTarget && (
