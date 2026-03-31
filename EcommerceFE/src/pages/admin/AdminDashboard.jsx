@@ -37,11 +37,11 @@ export default function AdminDashboard() {
         fetchAdminStats()
             .then((data) => {
                 if (cancelled) return;
-                const revenue = data.revenueMonth ?? data.revenue ?? data.monthlyRevenue;
+                const revenue = data.MonthlyRevenue ?? data.revenue ?? data.monthlyRevenue;
                 setStats({
                     productCount: data.productCount ?? data.products ?? PRODUCTS.length,
-                    ordersToday: data.ordersToday ?? data.ordersTodayCount ?? data.orders,
-                    revenueMonth: typeof revenue === "number" ? revenue : null,
+                    ordersToday: data.todayOrderCount,
+                    revenueMonth: typeof revenue === "number" ? revenue : null ,
                     loading: false,
                     fromApi: true,
                 });

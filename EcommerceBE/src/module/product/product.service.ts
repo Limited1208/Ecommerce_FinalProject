@@ -62,8 +62,8 @@ export class ProductService {
             ]
         }
 
-        if (status) {
-            where.status = ProductStatus.InStock
+        if (status && status != 'all'){
+            where.status = status
         }
 
         const total = await this.prisma.product.count({ where })

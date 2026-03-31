@@ -7,6 +7,7 @@ import { tw } from "../../assets/theme";
 import AdminPageShell from "../../components/admin/AdminPageShell";
 import AdminModal from "../../components/admin/AdminModal";
 import AdminConfirmDialog from "../../components/admin/AdminConfirmDialog";
+import { TruncId } from "../../components/functions/truncId";
 
 const STATUS_STYLES = {
     Delivered: "bg-[#14532d] text-[#86efac] border border-[#166534]",
@@ -42,9 +43,16 @@ export default function AdminOrdersPage() {
     }, [reload]);
 
     const idOf = (o) => o.id ?? o.orderId ?? o.number ?? "—";
-    const emailOf = (o) => o.customerEmail ?? o.email ?? o.customer ?? "";
-    const dateOf = (o) => o.placedAt ?? o.createdAt ?? o.date ?? "";
-    const itemsOf = (o) => o.items ?? o.lineItems ?? o.itemCount ?? 0;
+    const emailOf = (o) => o.userEmail;
+    const dateOf = (o) =>
+        new Date(o.createdAt).toLocaleDateString();
+    const itemsOf = (o) => {
+        if (Array.isArray(o.items)) {
+            return o.items.length;
+        };
+        return o.items
+    };
+
 
     const openCreate = () => {
         const id = `ORD-${Date.now()}`;
@@ -168,7 +176,7 @@ export default function AdminOrdersPage() {
                             ) : (
                                 rows.map((o, i) => (
                                     <tr key={String(idOf(o)) + i} className="hover:bg-[#160a00]/80 transition-colors">
-                                        <td className="py-3 px-4 text-white font-mono text-xs">{idOf(o)}</td>
+                                        <td className="py-3 px-4 text-white font-mono text-xs"><TruncId id = {idOf(o)} /></td>
                                         <td className="py-3 px-4 text-white">{emailOf(o)}</td>
                                         <td className="py-3 px-4">{dateOf(o)}</td>
                                         <td className="py-3 px-4">{itemsOf(o)}</td>

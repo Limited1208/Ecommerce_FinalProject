@@ -11,7 +11,7 @@ export const adminLoginApi = (email, password) =>
 
 /** Optional: GET /admin/stats — adjust path to match your backend. */
 export const fetchAdminStats = () =>
-    baseUrl.get("/admin/stats").then((res) => res.data);
+    adminClient.get("/stats").then((res) => res.data);
 
 function firstArray(payload, keys) {
     if (Array.isArray(payload)) return payload;
@@ -22,17 +22,15 @@ function firstArray(payload, keys) {
     return [];
 }
 
-/** GET /admin/products — on error uses storefront mock catalog. */
 export async function fetchAdminProducts() {
     try {
-        const { data } = await adminClient.get("/products", { params: { isActive: true, status: "InStock", page: 1, limit: 10 } });
+        const { data } = await adminClient.get("/products", { params: { isActive: true, status: null, page: 1, limit: 10 } });
         return firstArray(data, ["products", "content", "items", "data"]);
     } catch {
         return [];
     }
 }
 
-/** GET /admin/users */
 export async function fetchAdminUsers() {
     try {
         const { data } = await adminClient.get("/users", { params: { page: 1, limit: 10 } });
@@ -57,8 +55,9 @@ export async function fetchAdminCategories() {
 /** GET /admin/orders */
 export async function fetchAdminOrders() {
     try {
-        const { data } = await adminClient.get("/orders/admin/all", { params: { page: 1, limit: 10 } });
-        return firstArray(data, ["orders", "content", "items", "data"]);
+        const { data } = await adminClient.get("/orders/admin/all", { params: { limit: 10, page: 1 } });
+        console.log(data.data)
+        return firstArray(data.data, ["orders", "content", "items", "data"]);
     } catch {
         return [];
     }

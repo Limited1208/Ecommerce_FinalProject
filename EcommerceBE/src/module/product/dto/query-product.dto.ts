@@ -29,8 +29,9 @@ export class QueryProductDto {
         description: 'Product Status',
         example: 'InStock'
     })
+    @IsOptional()
     @IsEnum(ProductStatus)
-    status: ProductStatus
+    status?: ProductStatus | 'all'
     
 
     @ApiPropertyOptional({

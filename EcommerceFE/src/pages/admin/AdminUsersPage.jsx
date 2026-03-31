@@ -7,9 +7,11 @@ import {
     fetchAdminUsers,
 } from "../../api/adminApi";
 import { tw } from "../../assets/theme";
+import { TruncId } from "../../components/functions/truncId";
 import AdminPageShell from "../../components/admin/AdminPageShell";
 import AdminModal from "../../components/admin/AdminModal";
 import AdminConfirmDialog from "../../components/admin/AdminConfirmDialog";
+import SearchBar from "../../components/admin/SearchBar";
 
 function displayName(u) {
     if (u.firstName || u.lastName) {
@@ -25,6 +27,7 @@ export default function AdminUsersPage() {
     const [modal, setModal] = useState(false);
     const [deleteTarget, setDeleteTarget] = useState(null);
     const [form, setForm] = useState(null);
+    const [search, setSearch] = useState("");
 
     const reload = useCallback(() => {
         fetchAdminUsers().then((data) => {
@@ -54,6 +57,17 @@ export default function AdminUsersPage() {
         setModal(true);
     };
 
+    const filtered = rows.filter((u) => {
+        const keyword = search.toLowerCase();
+        return (
+            u.email?.toLowerCase().includes(keyword) ||
+            displayName(u).toLowerCase().includes(keyword) ||
+            String(u.id).includes(keyword) ||
+            (u.role ?? "").toLowerCase().includes(keyword)
+        );
+    });
+
+
     const saveUser = async () => {
         if (!form?.email?.trim()) return;
         const exists = rows.some((r) => r.id === form.id);
@@ -80,15 +94,22 @@ export default function AdminUsersPage() {
             title="Users"
             description="Manage customer accounts. Data syncs to the API when endpoints exist; otherwise it stays in this browser."
         >
-            <div className="flex justify-end mb-4">
-                <button
-                    type="button"
-                    onClick={openCreate}
-                    className={`${tw.btnPrimary} inline-flex items-center gap-2 px-4 py-2.5 text-[11px]`}
-                    style={{ background: "linear-gradient(135deg, #ff6b00, #ff0040)", boxShadow: "0 4px 20px rgba(255,107,0,0.25)" }}
-                >
-                    <FiPlus size={14} /> Add user
-                </button>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+                <SearchBar
+                    value={search}
+                    onChange={setSearch}
+                    placeholder="Search name, id, email…"
+                />
+                <div className="flex justify-end mb-4">
+                    <button
+                        type="button"
+                        onClick={openCreate}
+                        className={`${tw.btnPrimary} inline-flex items-center gap-2 px-4 py-2.5 text-[11px]`}
+                        style={{ background: "linear-gradient(135deg, #ff6b00, #ff0040)", boxShadow: "0 4px 20px rgba(255,107,0,0.25)" }}
+                    >
+                        <FiPlus size={14} /> Add user
+                    </button>
+                </div>
             </div>
 
             <div className={`${tw.card} overflow-hidden border border-[#2a1500]`}>
@@ -130,9 +151,9 @@ export default function AdminUsersPage() {
                                     </td>
                                 </tr>
                             ) : (
-                                rows.map((u) => (
+                                filtered.map((u) => (
                                     <tr key={u.id} className="hover:bg-[#160a00]/80 transition-colors">
-                                        <td className="py-3 px-4 text-white font-mono text-xs">{u.id}</td>
+                                        <td className="py-3 px-4 w-20"><TruncId id={u.id} /></td>
                                         <td className="py-3 px-4 text-white">{u.email}</td>
                                         <td className="py-3 px-4">{displayName(u)}</td>
                                         <td className="py-3 px-4">
