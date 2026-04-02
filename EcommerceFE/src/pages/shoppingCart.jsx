@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { PRODUCTS, SHIPPING_THRESHOLD } from "../data/constants";
 import { usePageTitle } from "../hooks/usePageTitle";
 
@@ -76,6 +77,7 @@ function CartRow({ item, onUpdateQty, onRemove, isRemoving }) {
 function OrderSummary({
     subtotal, discount, shipping, total,
     promoApplied, promoCode, setPromoCode, onApplyPromo,
+    onCheckout,
 }) {
     return (
         <div className="bg-white rounded-3xl shadow-sm p-6 sticky top-6">
@@ -128,7 +130,7 @@ function OrderSummary({
                 </span>
             </div>
 
-            <button className="w-full bg-[#2c2c2c] text-white rounded-2xl py-4 text-sm tracking-widest uppercase hover:bg-[#111] hover:tracking-[0.12em] transition-all">
+            <button onClick={onCheckout} className="w-full bg-[#2c2c2c] text-white rounded-2xl py-4 text-sm tracking-widest uppercase hover:bg-[#111] hover:tracking-[0.12em] transition-all">
                 Proceed to Checkout →
             </button>
 
@@ -218,6 +220,7 @@ export default function ShoppingCart({
     orderData,       // { cart, subtotal, discount, shipping, total, promoApplied, promoCode }
     onContinueShopping,
 }) {
+    const navigate = useNavigate();
     const [removingId, setRemovingId] = useState(null);
 
     // Promo state — pre-filled if user already applied one in the drawer
@@ -361,6 +364,7 @@ export default function ShoppingCart({
                             promoCode={promoCode}
                             setPromoCode={setPromoCode}
                             onApplyPromo={applyPromo}
+                            onCheckout={() => navigate('/checkout')}
                         />
                     </div>
 

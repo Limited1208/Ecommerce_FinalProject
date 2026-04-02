@@ -8,6 +8,7 @@ import ProductPage from "../pages/ProductPage";
 import LoginPage from "../pages/loginPage";
 import RegisterPage from "../pages/registerPage";
 import CheckoutPage from "../pages/checkOutPage";
+import OrderConfirmationPage from "../pages/orderConfirmationPage";
 import ProfilePage from "../pages/profilePage";
 import ForgotPasswordPage from "../pages/fotgotPasswordPage";
 import AdminLoginPage from "../pages/admin/AdminLoginPage";
@@ -47,6 +48,7 @@ function AppRoutes() {
 
           <Route path="/product/:id" element={<ProductPage />} />
           <Route path="/checkout"       element={<CheckoutPage />} />
+          <Route path="/order-confirmation" element={<OrderConfirmationPage />} />
           <Route
             path="/women"
             element={
