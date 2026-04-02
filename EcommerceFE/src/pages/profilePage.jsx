@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { data, useNavigate } from "react-router-dom";
 import {
     FiUser, FiMail, FiPhone, FiMapPin,
     FiEdit2, FiSave, FiX, FiShoppingBag,
@@ -9,7 +9,7 @@ import {
 import { usePageTitle } from "../hooks/usePageTitle";
 import { useUser } from "../hooks/useUser";
 import { gradients, shadows, keyframes, tw } from "../assets/theme";
-import { changePasswordApi } from "../api/userApi";
+import { changePasswordApi, deleteAccountApi, getMyOrdersApi } from "../api/userApi";
 import FormField from "../components/FormField";
 import PasswordInput from "../components/PasswordInput";
 import PasswordStrength from "../components/PasswordStrength";
@@ -79,6 +79,7 @@ export default function ProfilePage() {
     const { user, isLoggedIn, loading: userLoading, error: userError, logout, refreshProfile, updateProfile } = useUser();
 
     const [activeTab, setActiveTab] = useState("profile");
+    const [orderCount, setOrderCount] = useState("");
 
     /* Personal info */
     const [infoForm, setInfoForm] = useState({ firstName: "", lastName: "", email: "", phone: "" });
@@ -118,6 +119,13 @@ export default function ProfilePage() {
             country: user.country ?? "United States",
         });
     }, [user]);
+
+    useEffect(() => {
+        getMyOrdersApi().then((data) => {
+            const count = Array.isArray(data) ? data.length : 0;
+            setOrderCount(count);
+        });
+    }, []);
 
     if (!isLoggedIn) { navigate("/login"); return null; }
 
@@ -235,7 +243,7 @@ export default function ProfilePage() {
 
                         {/* Stats */}
                         <div className="flex flex-col gap-2.5">
-                            <StatCard icon={FiShoppingBag} label="Total Orders" value="0" color="#ff6b00" />
+                            <StatCard icon={FiShoppingBag} label="Total Orders" value={orderCount} color="#ff6b00" />
                             <StatCard icon={FiHeart} label="Wishlist Items" value="0" color="#ff0040" />
                         </div>
 

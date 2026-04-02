@@ -18,6 +18,7 @@ import AdminCategoriesPage from "../pages/admin/AdminCategoriesPage";
 import AdminOrdersPage from "../pages/admin/AdminOrdersPage";
 import AdminLayout from "../components/admin/AdminLayout";
 import AdminRoute from "../components/admin/AdminRoute";
+import OrdersPage from "../pages/ordersPage";
 
 function AppRoutes() {
   return (
@@ -139,6 +140,7 @@ function AppRoutes() {
 
           <Route path="/sale" element={<SalePage />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/orders" element= {<OrdersPage/>} />
 
         </Route>
         <Route path="/login"    element={<LoginPage />} />

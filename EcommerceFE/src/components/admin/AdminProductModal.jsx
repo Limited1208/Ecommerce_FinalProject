@@ -1,12 +1,13 @@
 import { gradients, shadows, tw } from "../../assets/theme";
+import ImageUpload from "../ImageUpload";
 import AdminModal from "./AdminModal";
 
 
 export default function AdminProductModal({ form, setForm, isEdit, onClose, onSave, categoryOptions = [] }) {
 
-  const setF   = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
+  const setF = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
   const setNum = (key) => (e) => setForm((f) => ({ ...f, [key]: parseFloat(e.target.value) || 0 }));
-  const setInt = (key) => (e) => setForm((f) => ({ ...f, [key]: parseInt(e.target.value)  || 0 }));
+  const setInt = (key) => (e) => setForm((f) => ({ ...f, [key]: parseInt(e.target.value) || 0 }));
 
   return (
     <AdminModal
@@ -119,18 +120,18 @@ export default function AdminProductModal({ form, setForm, isEdit, onClose, onSa
         </div>
 
         {/* imageUrl + preview */}
-        <div className="flex flex-col gap-1.5">
-          <label className={tw.label}>imageUrl</label>
-          <div className="flex gap-3 items-center">
-            <input className={`${tw.input} flex-1`} placeholder="https://example.com/image.jpg"
-              value={form.imageUrl ?? ""}
-              onChange={(e) => setForm((f) => ({ ...f, imageUrl: e.target.value }))} />
-            {form.imageUrl && (
-              <img src={form.imageUrl} alt="preview"
-                className="w-10 h-10 rounded-lg object-cover flex-shrink-0 border border-[#2a1500]"
-                onError={(e) => { e.target.style.display = "none"; }} />
-            )}
-          </div>
+        <div className="flex flex-col gap-2">
+          <ImageUpload 
+            value={form.imageUrl}
+            onChange={(url, file) => 
+              setForm((f) => ({
+                ...f,
+                imageUrl: url,
+                file,
+              }))
+            }
+          />
+          
         </div>
 
         {/* material + care */}

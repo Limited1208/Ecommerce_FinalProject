@@ -1,8 +1,9 @@
 import axios from "axios";
 
-/** Same origin as `config.js`; uses `adminToken` only (keeps shop `token` separate). */
+export const API_URL = import.meta.env.VITE_API_BASE_URL;
+
 const adminClient = axios.create({
-    baseURL: "http://localhost:8080/api/",
+    baseURL: API_URL,
     headers: { "Content-Type": "application/json" },
     timeout: 10000,
 });

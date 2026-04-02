@@ -56,7 +56,6 @@ export async function fetchAdminCategories() {
 export async function fetchAdminOrders() {
     try {
         const { data } = await adminClient.get("/orders/admin/all", { params: { limit: 10, page: 1 } });
-        console.log(data.data)
         return firstArray(data.data, ["orders", "content", "items", "data"]);
     } catch {
         return [];

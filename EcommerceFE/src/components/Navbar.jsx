@@ -61,8 +61,6 @@ export default function Navbar({ cartCount, onCartOpen, onLogoClick, onSearch })
     const USER_MENU = [
         { icon: FiUser, label: "My Profile", to: "/profile" },
         { icon: FiPackage, label: "My Orders", to: "/orders" },
-        { icon: FiHeart, label: "Wishlist", to: "/wishlist" },
-        { icon: FiSettings, label: "Settings", to: "/settings" },
     ];
 
     /* Search suggestions */

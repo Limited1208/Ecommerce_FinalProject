@@ -1,4 +1,5 @@
 import { gradients, shadows, tw } from "../../assets/theme";
+import ImageUpload from "../ImageUpload";
 import AdminModal from "./AdminModal";
 
 /* ── Auto-generate slug from name ── */
@@ -102,23 +103,16 @@ export default function AdminCategoryModal({ form, setForm, isEdit, onClose, onS
 
                 {/* imageUrl + preview */}
                 <div className="flex flex-col gap-1.5">
-                    <label className={tw.label}>imageUrl</label>
-                    <div className="flex gap-3 items-center">
-                        <input
-                            className={`${tw.input} flex-1`}
-                            placeholder="https://example.com/images/electronics.png"
-                            value={form.imageUrl ?? ""}
-                            onChange={setF("imageUrl")}
-                        />
-                        {form.imageUrl && (
-                            <img
-                                src={form.imageUrl}
-                                alt="preview"
-                                className="w-10 h-10 rounded-lg object-cover flex-shrink-0 border border-[#2a1500]"
-                                onError={(e) => { e.target.style.display = "none"; }}
-                            />
-                        )}
-                    </div>
+                    <ImageUpload 
+                        value={form.imageUrl}
+                        onChange={(url, file) => 
+                            setF((f) => ({
+                                ...f,
+                                imageUrl: url,
+                                file,
+                            }))
+                        }
+                    />
                 </div>
 
                 {/* isActive toggle */}
