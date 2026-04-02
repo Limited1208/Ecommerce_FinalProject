@@ -194,7 +194,7 @@ export class OrderController {
         description: 'Order not found',
     })
     async cancelAdmin(@Param('id') id: string){
-        await this.orderService.cancel(id);
+        return await this.orderService.cancel(id);
     }
 
     @Delete(':id')
@@ -211,7 +211,7 @@ export class OrderController {
         description: 'Order not found',
     })
     async cancel(@Param('id') id: string, @GetUser('id') userId: string){
-        await this.orderService.cancel(id, userId);
+        return await this.orderService.cancel(id, userId);
     }
 
 }

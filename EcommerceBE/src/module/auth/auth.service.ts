@@ -49,7 +49,7 @@ export class AuthService {
 
             const token = await this.generateToken(user.id, user.email);
 
-            await this.updateRefreshToken(user.id, user.email);
+            await this.updateRefreshToken(user.id, token.refreshToken);
             return {
                 ...token,
                 user,

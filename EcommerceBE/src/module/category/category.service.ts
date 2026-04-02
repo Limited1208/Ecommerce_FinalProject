@@ -21,7 +21,7 @@ export class CategoryService {
         });
 
         if (existingCategory) {
-            throw new Error(
+            throw new ConflictException(
                 'Category with this slug already exists: ' + categorySlug,
             );
         }

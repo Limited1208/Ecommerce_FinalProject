@@ -76,7 +76,6 @@ export function useUser() {
         setLoading(true);
         setError(null);
         try{
-            console.log(currentPassword, newPassword)
             const updated = await changePasswordApi(currentPassword, newPassword);
             return updated;
         }catch(err){
