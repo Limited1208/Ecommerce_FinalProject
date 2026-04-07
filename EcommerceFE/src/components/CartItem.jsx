@@ -8,7 +8,7 @@ export default function CartItem({ item, onUpdateQty, onRemove, isRemoving }) {
                 transition: "opacity 0.35s ease, transform 0.35s ease",
             }}
         >
-            <img src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded-xl flex-shrink-0 border border-[#2a1500]" />
+            <img src={item.imageUrl} alt={item.name} className="w-16 h-16 object-cover rounded-xl flex-shrink-0 border border-[#2a1500]" />
 
             <div className="flex-1 min-w-0">
                 <div className="flex justify-between">

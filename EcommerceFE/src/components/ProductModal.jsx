@@ -70,7 +70,7 @@ export default function ProductModal({ product, onClose, onAddToCart }) {
                     {/* ── Image ── */}
                     <div className="w-[44%] flex-shrink-0 bg-[#0d0800]">
                         <img
-                            src={product.image}
+                            src={product.imageUrl}
                             alt={product.name}
                             className="w-full h-full object-cover block"
                         />

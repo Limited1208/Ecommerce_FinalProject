@@ -16,8 +16,8 @@ export default function ProductCard({ product, onAddToCart }) {
   const goToDetail = () => navigate(`/product/${product.id}`);
 
   const fmt     = (n) => `$${Number(n).toFixed(2)}`;
-  const discPct = product.originalPrice
-    ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
+  const discPct = product.originPrice
+    ? Math.round(((product.originPrice - product.price) / product.originPrice) * 100)
     : null;
 
   return (
@@ -61,7 +61,7 @@ export default function ProductCard({ product, onAddToCart }) {
       {/* Image */}
       <div className="relative overflow-hidden bg-[#160a00] aspect-[5/6]">
         <img
-          src={product.image}
+          src={product.imageUrl}
           alt={product.name}
           className="w-full h-full object-cover opacity-90"
           style={{
@@ -119,14 +119,14 @@ export default function ProductCard({ product, onAddToCart }) {
             {product.name}
           </p>
           <div className="text-right flex-shrink-0">
-            {product.originalPrice && (
+            {product.originPrice && (
               <p className="text-[11px] text-[#444] line-through leading-none mb-0.5">
-                {fmt(product.originalPrice)}
+                {fmt(product.originPrice)}
               </p>
             )}
             <p
               className="heading text-[16px] leading-none"
-              style={{ color: product.originalPrice ? "#ff0040" : "#fff" }}
+              style={{ color: product.originPrice ? "#ff0040" : "#fff" }}
             >
               {fmt(product.price)}
             </p>

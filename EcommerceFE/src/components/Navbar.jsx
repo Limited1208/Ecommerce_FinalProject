@@ -6,6 +6,7 @@ import {
 } from "react-icons/fi";
 import { useProducts } from "../hooks/useProducts";
 import { useUser } from "../hooks/useUser";
+import { fetchAdminProducts } from "../api/adminApi";
 
 /* ── Highlight matched substring ── */
 function Highlight({ text, query }) {
@@ -48,7 +49,7 @@ export default function Navbar({ cartCount, onCartOpen, onLogoClick, onSearch })
 
     const { pathname } = useLocation();
     const navigate = useNavigate();
-    const { products } = useProducts();
+    const { products } = fetchAdminProducts();
     const { user, isLoggedIn, logout } = useUser();
 
     const NAV_LINKS = [
@@ -248,7 +249,7 @@ export default function Navbar({ cartCount, onCartOpen, onLogoClick, onSearch })
                                                         style={{ background: activeIdx === i ? "#1e1000" : "transparent" }}
                                                     >
                                                         <img
-                                                            src={product.image}
+                                                            src={product.imageUrl}
                                                             alt={product.name}
                                                             className="w-10 h-10 object-cover rounded-lg flex-shrink-0 border border-[#2a1500]"
                                                         />

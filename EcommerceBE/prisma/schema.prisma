@@ -55,6 +55,12 @@ enum PaymentStatus{
   REFUNDED
 }
 
+enum PaymentProvider{
+  VNPAY
+  MOMO
+  PAYPAL
+}
+
 enum Provider{
   LOCAL
   GOOGLE
@@ -243,7 +249,7 @@ model Payment{
   amount Decimal @db.Decimal(10,2)
   status PaymentStatus
   currency String @default("usd")
-  paymentMethod String?
+  paymentMethod PaymentProvider?
   transactionId String?
 
   userId String

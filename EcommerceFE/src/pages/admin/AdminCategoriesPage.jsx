@@ -4,7 +4,7 @@ import { usePageTitle } from "../../hooks/usePageTitle";
 import {
     persistCategories,
     tryDeleteCategory,
-    getProductsForCategoryCount,
+    fetchAdminProducts,
     fetchAdminCategories,
     createCategory,
 } from "../../api/adminApi";
@@ -29,6 +29,7 @@ export default function AdminCategoriesPage() {
     const [modal, setModal] = useState(false);
     const [deleteTarget, setDeleteTarget] = useState(null);
     const [form, setForm] = useState(null);
+    const [productList, setProductList] = useState([]);
 
     const reload = useCallback(() => {
         fetchAdminCategories().then((data) => {
@@ -38,6 +39,7 @@ export default function AdminCategoriesPage() {
     }, []);
 
     useEffect(() => {
+        fetchAdminProducts().then(setProductList);
         reload();
     }, [reload]);
 
@@ -110,7 +112,7 @@ export default function AdminCategoriesPage() {
     };
 
     const productsInCategory = deleteTarget
-        ? getProductsForCategoryCount().filter((p) => p.category === nameOf(deleteTarget)).length
+        ? productList.filter((p) => p.category === nameOf(deleteTarget)).length
         : 0;
 
     return (
@@ -167,7 +169,7 @@ export default function AdminCategoriesPage() {
                                     const name = nameOf(row);
                                     const slug = rowSlug(row);
                                     const count =
-                                        row.productCount ?? getProductsForCategoryCount().filter((p) => p.category === name).length;
+                                        row.productCount ?? productList.filter((p) => p.category === name).length;
                                     return (
                                         <tr key={row.id ?? slug ?? i} className="hover:bg-[#160a00]/80 transition-colors">
                                             <td className="py-3 px-4 text-white font-semibold">{name}</td>

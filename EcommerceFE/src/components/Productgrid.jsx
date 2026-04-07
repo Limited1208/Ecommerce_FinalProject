@@ -1,14 +1,24 @@
-import { useState } from "react";
-import { CATEGORIES, PRODUCTS } from "../data/constants";
+import { useState, useEffect } from "react";
+import { CATEGORIES } from "../data/constants";
 import ProductCard from "./ProductCard";
+import { fetchAdminProducts } from "../api/adminApi";
 
 function ProductGrid({ onAddToCart }) {
     const [activeCategory, setActiveCategory] = useState("All");
+    const [products, setProducts] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetchAdminProducts().then((data) => {
+            setProducts(data);
+            setLoading(false);
+        });
+    }, []);
 
     const filtered =
         activeCategory === "All"
-            ? PRODUCTS
-            : PRODUCTS.filter((p) => p.category === activeCategory);
+            ? products
+            : products.filter((p) => p.category === activeCategory);
 
     return (
         <section id="products" className="max-w-6xl mx-auto px-6 py-16">
@@ -44,9 +54,19 @@ function ProductGrid({ onAddToCart }) {
 
             {/* Grid */}
             <div className="card-grid grid grid-cols-2 md:grid-cols-3 gap-4">
-                {filtered.map((product) => (
-                    <ProductCard key={product.id} product={product} onAddToCart={onAddToCart} />
-                ))}
+                {loading ? (
+                    <div className="col-span-full text-center py-12 text-[#664433]">
+                        Loading products...
+                    </div>
+                ) : filtered.length === 0 ? (
+                    <div className="col-span-full text-center py-12 text-[#664433]">
+                        No products found.
+                    </div>
+                ) : (
+                    filtered.map((product) => (
+                        <ProductCard key={product.id} product={product} onAddToCart={onAddToCart} />
+                    ))
+                )}
             </div>
 
             {/* Load more */}

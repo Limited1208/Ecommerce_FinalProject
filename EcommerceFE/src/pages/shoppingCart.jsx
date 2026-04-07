@@ -16,7 +16,7 @@ function CartRow({ item, onUpdateQty, onRemove, isRemoving }) {
             }}
         >
             <img
-                src={item.image}
+                src={item.imageUrl}
                 alt={item.name}
                 className="w-20 h-20 object-cover rounded-2xl flex-shrink-0"
             />
@@ -170,7 +170,7 @@ function SuggestedProducts({ cartIds, onAddToCart }) {
                     <div key={p.id} className="bg-white rounded-2xl overflow-hidden shadow-sm group">
                         <div className="aspect-[4/5] overflow-hidden bg-[#f5f0eb] relative">
                             <img
-                                src={p.image}
+                                src={p.imageUrl}
                                 alt={p.name}
                                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                             />

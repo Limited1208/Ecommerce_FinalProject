@@ -46,7 +46,7 @@ function OrderSummary({ cart, subtotal, discount, shipping, total, promoApplied 
                 {cart.map((item) => (
                     <div key={item.id} className="flex gap-3 items-center">
                         <div className="relative flex-shrink-0">
-                            <img src={item.image} alt={item.name} className="w-[52px] h-[52px] object-cover rounded-lg border border-[#2a1500]" />
+                            <img src={item.imageUrl} alt={item.name} className="w-[52px] h-[52px] object-cover rounded-lg border border-[#2a1500]" />
                             <span className="absolute -top-1.5 -right-1.5 w-[18px] h-[18px] rounded-full bg-[#ff6b00] text-white text-[9px] font-bold flex items-center justify-center">
                                 {item.qty}
                             </span>
