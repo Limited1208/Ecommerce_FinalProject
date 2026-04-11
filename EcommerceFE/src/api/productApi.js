@@ -1,14 +1,21 @@
 import baseUrl from "./config";
 
-const USE_MOCK = import.meta.env.VITE_USE_MOCK !== "false";
+export async function getProducts() {
+    const res = await baseUrl.get("/products", {
+        params: { isActive: true, page: 1, limit: 100 },
+    });
 
-export const getProducts = () => {
-    if (USE_MOCK) return Promise.resolve([]);
-    return baseUrl.get("/products", { params: { isActive: true, status: "InStock", page: 1, limit: 10 } }).then((res) => res.data.data);
+    const result = res.data.data ?? [];
+
+    return result;
 };
 
-export const getProductById = (id) => {
-    if (USE_MOCK)
-        return Promise.resolve([]);
-    return baseUrl.get(`/products/${id}`).then((res) => res.data.data);
-};
+export const getProductByIdApi = (id) =>
+    baseUrl.get(`/product/${id}`).then((res) => res.data);
+
+export async function getCategory() {
+    const res = await baseUrl.get("/categories", { params: { page: 1, limit: 10 } });;
+
+    const result = res.data.data ?? [];
+    return result;
+}

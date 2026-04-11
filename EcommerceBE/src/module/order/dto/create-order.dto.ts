@@ -26,3 +26,7 @@ export class CreateOrderDto {
     @IsString()
     shippingAddress: string
 }
+
+export class GuestDto {
+    
+}

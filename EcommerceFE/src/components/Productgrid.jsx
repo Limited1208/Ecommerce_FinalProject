@@ -1,24 +1,36 @@
-import { useState, useEffect } from "react";
-import { CATEGORIES } from "../data/constants";
+import { useState } from "react";
 import ProductCard from "./ProductCard";
-import { fetchAdminProducts } from "../api/adminApi";
+import { useProducts,useCategories } from "../hooks/useProducts";
+import { gradients, shadows, tw } from "../assets/theme";
+
+const INITIAL_LIMIT = 6;
 
 function ProductGrid({ onAddToCart }) {
     const [activeCategory, setActiveCategory] = useState("All");
-    const [products, setProducts] = useState([]);
-    const [loading, setLoading] = useState(true);
+    const [showAll, setShowAll] = useState(false);
+    const { products, loading, error } = useProducts();
+    const {categories, catLoading, catError} = useCategories();
 
-    useEffect(() => {
-        fetchAdminProducts().then((data) => {
-            setProducts(data);
-            setLoading(false);
-        });
-    }, []);
+    const filtered = activeCategory === "All"
+        ? products
+        : products.filter((p) =>
+            (p.category ?? p.categoryId ?? "")
+                .toLowerCase()
+                .includes(activeCategory.toLowerCase())
+        );
 
-    const filtered =
-        activeCategory === "All"
-            ? products
-            : products.filter((p) => p.category === activeCategory);
+    // Reset showAll when category changes
+    const handleCategoryChange = (cat) => {
+        setActiveCategory(cat);
+        setShowAll(false);
+    };
+
+    const displayed  = showAll ? filtered : filtered.slice(0, INITIAL_LIMIT);
+    const hasMore    = filtered.length > INITIAL_LIMIT;
+
+    const ALL_CATS = categories        ? ["All", ...categories.map((c) => c.name)]
+                    : CATEGORIES.length ? ["All", ...CATEGORIES]
+                    : ["All"];
 
     return (
         <section id="products" className="max-w-6xl mx-auto px-6 py-16">
@@ -26,56 +38,74 @@ function ProductGrid({ onAddToCart }) {
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6">
                 <div>
-                    <div className="flex items-center gap-2 mb-2">
-                        <div className="h-px w-6 bg-[#a855f7]" />
-                        <p className="text-xs tracking-[0.3em] uppercase text-[#a855f7]">Fresh Drops</p>
-                    </div>
+                    <p className={`${tw.labelOrange} mb-2`}>Fresh Drops</p>
                     <h2 className="heading text-4xl text-white">NEW ARRIVALS</h2>
                 </div>
 
                 {/* Category filter */}
                 <div className="flex flex-wrap gap-2">
-                    {CATEGORIES.map((cat) => (
-                        <button
-                            key={cat}
-                            onClick={() => setActiveCategory(cat)}
-                            className="px-4 py-1.5 rounded text-xs tracking-widest uppercase font-semibold transition-all"
-                            style={{
-                                background: activeCategory === cat ? "#a855f7" : "#1a0e00",
-                                color:      activeCategory === cat ? "#0a0a12" : "#555",
-                                border:     activeCategory === cat ? "1px solid #a855f7" : "1px solid #2a1500",
-                            }}
-                        >
-                            {cat}
-                        </button>
-                    ))}
+                    {ALL_CATS.map((cat) => {
+                        const active = activeCategory === cat;
+                        return (
+                            <button
+                                key={cat}
+                                onClick={() => handleCategoryChange(cat)}
+                                className="px-4 py-1.5 rounded-lg text-xs tracking-widest uppercase font-semibold transition-all hover:scale-[1.02] cursor-pointer border-none"
+                                style={{
+                                    background: active ? gradients.brand : "#130900",
+                                    color:      active ? "#fff"          : "#664433",
+                                    border:     active ? "none"          : "1px solid #2a1500",
+                                    boxShadow:  active ? shadows.btnGlow : "none",
+                                }}
+                            >
+                                {cat}
+                            </button>
+                        );
+                    })}
                 </div>
             </div>
 
             {/* Grid */}
-            <div className="card-grid grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 {loading ? (
-                    <div className="col-span-full text-center py-12 text-[#664433]">
-                        Loading products...
+                    <div className="col-span-full flex flex-col items-center py-16 gap-3">
+                        <div className="w-8 h-8 rounded-full border-2 border-[#ff6b00] border-t-transparent animate-spin" />
+                        <p className="text-xs tracking-widest uppercase text-[#664433]">Loading products…</p>
+                    </div>
+                ) : error ? (
+                    <div className="col-span-full text-center py-12">
+                        <p className="text-sm text-[#ff0040]">{error}</p>
                     </div>
                 ) : filtered.length === 0 ? (
-                    <div className="col-span-full text-center py-12 text-[#664433]">
-                        No products found.
+                    <div className="col-span-full text-center py-12">
+                        <p className="text-sm text-[#664433]">No products in this category.</p>
                     </div>
                 ) : (
-                    filtered.map((product) => (
+                    displayed.map((product) => (
                         <ProductCard key={product.id} product={product} onAddToCart={onAddToCart} />
                     ))
                 )}
             </div>
 
-            {/* Load more */}
-            <div className="mt-12 text-center">
-                <button className="border border-[#a855f744] text-[#a855f7] px-10 py-3 rounded-lg text-xs tracking-widest uppercase font-semibold hover:bg-[#a855f7] hover:text-[#0a0a12] transition-all">
-                    View Full Collection
-                </button>
-            </div>
-
+            {/* Show more / collapse button */}
+            {!loading && !error && hasMore && (
+                <div className="mt-12 text-center">
+                    <button
+                        onClick={() => setShowAll((v) => !v)}
+                        className="px-10 py-3 rounded-lg text-xs tracking-widest uppercase font-semibold transition-all hover:scale-[1.02] cursor-pointer border-none"
+                        style={{
+                            background: showAll ? "#130900"       : gradients.brand,
+                            color:      showAll ? "#ff6b00"       : "#fff",
+                            border:     showAll ? "1px solid #ff6b0044" : "none",
+                            boxShadow:  showAll ? "none"           : shadows.btnGlow,
+                        }}
+                    >
+                        {showAll
+                            ? `Show Less ↑`
+                            : `View All ${filtered.length} Products ↓`}
+                    </button>
+                </div>
+            )}
         </section>
     );
 }

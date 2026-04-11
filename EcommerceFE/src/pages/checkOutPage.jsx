@@ -301,7 +301,7 @@ export default function CheckoutPage() {
 
                                 <div className="flex gap-2.5 mb-7">
                                     {[
-                                        { id: "card", icon: "💳", label: "Credit Card" },
+                                        { id: "VnPay", icon: "💳", label: "Credit Card" },
                                         { id: "paypal", icon: "🅿️", label: "PayPal" },
                                         { id: "cod", icon: "📦", label: "Cash on Delivery" },
                                     ].map((m) => {

@@ -6,7 +6,6 @@ import {
 } from "react-icons/fi";
 import { useProducts } from "../hooks/useProducts";
 import { useUser } from "../hooks/useUser";
-import { fetchAdminProducts } from "../api/adminApi";
 
 /* ── Highlight matched substring ── */
 function Highlight({ text, query }) {
@@ -49,13 +48,14 @@ export default function Navbar({ cartCount, onCartOpen, onLogoClick, onSearch })
 
     const { pathname } = useLocation();
     const navigate = useNavigate();
-    const { products } = fetchAdminProducts();
+    const { products } = useProducts();
     const { user, isLoggedIn, logout } = useUser();
 
     const NAV_LINKS = [
         { label: "New Drops", to: "/" },
         { label: "Running", to: "/running" },
-        { label: "Apparel", to: "/apparel" },
+        { label: "Basketball", to: "/basketball" },
+        { label: "Football", to: "/football" },
         { label: "Sale", to: "/sale" },
     ];
 
