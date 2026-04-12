@@ -50,7 +50,7 @@ export class PaypalGateway implements IPaymentGateway {
                     description: input.orderInfo,
                     amount: {
                         currency_code: 'USD',
-                        value: (input.amount / 25000).toFixed(2),
+                        value: (input.amount).toFixed(2),
                     },
                 }],
                 application_context: {

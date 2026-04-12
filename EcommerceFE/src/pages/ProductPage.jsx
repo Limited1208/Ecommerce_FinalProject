@@ -19,7 +19,6 @@ export default function ProductPage() {
     const product = products.find((p) => String(p.id) === String(id));
 
     usePageTitle(product?.name ?? "Product");
-    console.log("ProductPage - product:", product); // Debugging line to check if product is found
 
     const [selectedSize, setSelectedSize] = useState(null);
     const [added, setAdded]               = useState(false);

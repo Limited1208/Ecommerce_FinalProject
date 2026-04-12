@@ -1,3 +1,5 @@
+import { HiMinusSm, HiPlusSm } from "react-icons/hi";
+
 export default function CartItem({ item, onUpdateQty, onRemove, isRemoving }) {
     return (
         <div
@@ -25,7 +27,7 @@ export default function CartItem({ item, onUpdateQty, onRemove, isRemoving }) {
                         onClick={() => onRemove(item.id)}
                         className="text-[#333] text-lg hover:text-red-400 transition-colors leading-none ml-2"
                     >
-                        ×
+                        × 
                     </button>
                 </div>
 
@@ -35,14 +37,14 @@ export default function CartItem({ item, onUpdateQty, onRemove, isRemoving }) {
                             onClick={() => onUpdateQty(item.id, -1)}
                             className="w-5 h-5 flex items-center justify-center text-sm text-[#555] hover:text-[#ff6b00] transition-colors"
                         >
-                            −
+                            <HiMinusSm className="w-3 h-3" />
                         </button>
                         <span className="text-xs w-4 text-center text-white">{item.qty}</span>
                         <button
                             onClick={() => onUpdateQty(item.id, 1)}
                             className="w-5 h-5 flex items-center justify-center text-sm text-[#555] hover:text-[#ff6b00] transition-colors"
                         >
-                            +
+                            <HiPlusSm className="w-3 h-3" />
                         </button>
                     </div>
                     <p className="heading text-[15px] text-[#ff6b00]">${(item.price * item.qty).toFixed(2)}</p>

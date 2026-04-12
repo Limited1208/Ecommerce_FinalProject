@@ -46,9 +46,9 @@ export class CreatePaymentUseCase {
         });
 
         const data: Prisma.PaymentCreateInput = {
-            amount: new Prisma.Decimal(amount),
+            amount: amount,
             status: 'PENDING',
-            currency: 'vnd',
+            currency: 'USD',
             paymentMethod: dto.provider,
             user: { connect: { id: userId } },
             order: { connect: { id: dto.orderId } },
