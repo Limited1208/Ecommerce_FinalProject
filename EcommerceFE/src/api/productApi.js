@@ -11,7 +11,7 @@ export async function getProducts() {
 };
 
 export const getProductByIdApi = (id) =>
-    baseUrl.get(`/product/${id}`).then((res) => res.data);
+    baseUrl.get(`/products/${id}`).then((res) => res.data);
 
 export async function getCategory() {
     const res = await baseUrl.get("/categories", { params: { page: 1, limit: 10 } });;

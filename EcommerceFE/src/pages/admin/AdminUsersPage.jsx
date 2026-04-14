@@ -73,7 +73,7 @@ export default function AdminUsersPage() {
         const exists = rows.some((r) => r.id === form.id);
         const next = exists ? rows.map((r) => (r.id === form.id ? { ...form } : r)) : [...rows, { ...form }];
         setRows(next);
-        await persistUsers(form.id, next);
+        await persistUsers(form.id, form);
         setModal(false);
         setForm(null);
     };
@@ -84,7 +84,6 @@ export default function AdminUsersPage() {
         const next = rows.filter((r) => r.id !== id);
         setRows(next);
         await tryDeleteUser(id);
-        await persistUsers(next);
         setDeleteTarget(null);
     };
 

@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from "react";
-import { data, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
     FiUser, FiMail, FiPhone, FiMapPin,
     FiEdit2, FiSave, FiX, FiShoppingBag,
-    FiHeart, FiLock, FiTrash2, FiCamera,
+    FiLock, FiTrash2, FiCamera,
     FiChevronRight, FiLogOut,
 } from "react-icons/fi";
 import { usePageTitle } from "../hooks/usePageTitle";
@@ -244,7 +244,6 @@ export default function ProfilePage() {
                         {/* Stats */}
                         <div className="flex flex-col gap-2.5">
                             <StatCard icon={FiShoppingBag} label="Total Orders" value={orderCount} color="#ff6b00" />
-                            <StatCard icon={FiHeart} label="Wishlist Items" value="0" color="#ff0040" />
                         </div>
 
                         {/* Nav */}

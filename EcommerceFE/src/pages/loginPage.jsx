@@ -29,12 +29,7 @@ export default function LoginPage() {
                     </div>
 
                     <div className="flex flex-col gap-1.5">
-                        <div className="flex justify-between items-center">
-                            <label className={tw.label}>Password</label>
-                            <Link to="/forgot-password" className="text-[11px] text-[#ff6b00] no-underline hover:opacity-70 transition-opacity">
-                                Forgot password?
-                            </Link>
-                        </div>
+                        <label className={tw.label}>Password</label>
                         <PasswordInput placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} />
                     </div>
 

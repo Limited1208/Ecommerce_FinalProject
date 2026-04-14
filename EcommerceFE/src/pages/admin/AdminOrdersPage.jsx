@@ -47,10 +47,9 @@ export default function AdminOrdersPage() {
     const dateOf = (o) =>
         new Date(o.createdAt).toLocaleDateString();
     const itemsOf = (o) => {
-        if (Array.isArray(o.items)) {
-            return o.items.length;
-        };
-        return o.items
+        if (Array.isArray(o.items)) return o.items.length;
+        if (Array.isArray(o.orderItem)) return o.orderItem.length;
+        return typeof o.items === "number" ? o.items : 0;
     };
 
 
@@ -94,7 +93,7 @@ export default function AdminOrdersPage() {
             ? rows.map((r) => (String(idOf(r)) === String(order.id) ? order : r))
             : [...rows, order];
         setRows(next);
-        await persistOrders(next);
+        await persistOrders(order.id, order);
         setModal(false);
         setForm(null);
     };
@@ -105,7 +104,6 @@ export default function AdminOrdersPage() {
         const next = rows.filter((r) => String(idOf(r)) !== String(oid));
         setRows(next);
         await tryDeleteOrder(oid);
-        await persistOrders(next);
         setDeleteTarget(null);
     };
 

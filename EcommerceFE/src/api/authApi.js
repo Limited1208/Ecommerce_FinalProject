@@ -8,8 +8,9 @@ export const registerApi = (firstName, lastName, email, password) =>
         .post("/auth/register", { firstName, lastName, email, password })
         .then((res) => res.data);
 
-export const logoutApi = (userId) =>
-    baseUrl.post("/auth/logout", { userId }).then((res) => res.data);
+export const logoutApi = () =>
+    baseUrl.post("/auth/logout").then((res) => res.data);
 
+/** Stub — backend endpoint does not exist yet. */
 export const forgotPasswordApi = (email) =>
-    baseUrl.patch("auth/forgotPassword", {email}).then((res) => res.data)
+    baseUrl.post("/auth/forgot-password", { email }).then((res) => res.data);

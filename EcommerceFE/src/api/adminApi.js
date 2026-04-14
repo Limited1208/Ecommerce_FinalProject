@@ -7,7 +7,7 @@ import adminClient from "./adminClient";
  * Uses plain axios so a 401 on wrong password does not run the shop auth interceptor.
  */
 export const adminLoginApi = (email, password) =>
-    baseUrl.post(`/auth/login`, { email, password }).then((res) => res.data);
+    baseUrl.post(`/auth/admin/login`, { email, password }).then((res) => res.data);
 
 /** Optional: GET /admin/stats — adjust path to match your backend. */
 export const fetchAdminStats = () =>
@@ -24,7 +24,7 @@ function firstArray(payload, keys) {
 
 export async function fetchAdminProducts() {
     try {
-        const { data } = await adminClient.get("/products", { params: { isActive: true, status: null, page: 1, limit: 10 } });
+        const { data } = await adminClient.get("/products", { params: { isActive: true, page: 1, limit: 10 } });
         return firstArray(data, ["products", "content", "items", "data"]);
     } catch {
         return [];
@@ -95,36 +95,36 @@ export async function createCategory(category) {
     }
 }
 
-/* ── Persist attempts (API first; always save local copy for offline) ── */
+/* ── Persist attempts: PATCH a single row by id. Callsites that only want to
+ * sync list state after a delete should rely on tryDelete* instead. ── */
 
-export async function persistProducts(id, list) {
+export async function persistProducts(id, row) {
     try {
-        await adminClient.patch(`/products/${id}`, list);
+        await adminClient.patch(`/products/${id}`, row);
     } catch {
         /* local-only */
     }
 }
 
-export async function persistUsers(id, list) {
+export async function persistUsers(id, row) {
     try {
-        console.log(id, list)
-        await adminClient.patch(`/users/${id}`, list);
+        await adminClient.patch(`/users/${id}`, row);
     } catch {
         /* local-only */
     }
 }
 
-export async function persistCategories(id, list) {
+export async function persistCategories(id, row) {
     try {
-        await adminClient.patch(`categories/${id}`, list);
+        await adminClient.patch(`/categories/${id}`, row);
     } catch {
         /* local-only */
     }
 }
 
-export async function persistOrders(list) {
+export async function persistOrders(id, row) {
     try {
-        await adminClient.patch("/orders", list);
+        await adminClient.patch(`/orders/${id}`, row);
     } catch {
         /* local-only */
     }

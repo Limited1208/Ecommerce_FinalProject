@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useOutletContext, useNavigate, Link } from "react-router-dom";
 import { SHIPPING_THRESHOLD } from "../data/constants";
 import { gradients, shadows, keyframes, tw } from "../assets/theme";
@@ -6,6 +6,7 @@ import CheckoutSteps from "../components/CheckoutStep";
 import FormField from "../components/FormField";
 import LoadingSpinner from "../components/LoadingSpinner";
 import { createOrderApi, paymentOrderApi } from "../api/orderApi";
+import { useUser } from "../hooks/useUser";
 
 const fmt = (n) => `$${Number(n).toFixed(2)}`;
 
@@ -131,6 +132,7 @@ export default function CheckoutPage() {
     const context = useOutletContext() ?? {};
     const { cart = [], setCart, setOrderData } = context;
     const navigate = useNavigate();
+    const { user } = useUser();
 
     const [step, setStep] = useState(0);
     const [errors, setErrors] = useState({});
@@ -144,12 +146,28 @@ export default function CheckoutPage() {
 
     const [paymentMethod, setPaymentMethod] = useState("vnpay");
 
+    /* ── Pre-fill form from logged-in user's profile ── */
+    useEffect(() => {
+        if (!user) return;
+        setShippingForm((prev) => ({
+            ...prev,
+            firstName: prev.firstName || user.firstName || "",
+            lastName:  prev.lastName  || user.lastName  || "",
+            email:     prev.email     || user.email     || "",
+            phone:     prev.phone     || user.phone     || "",
+            address:   prev.address   || user.address   || "",
+            city:      prev.city      || user.city      || "",
+            country:   prev.country === "VN" && user.country ? user.country : prev.country,
+        }));
+    }, [user]);
+
     const subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
     const discount = context.orderData?.promoApplied ? subtotal * 0.1 : 0;
     const shippingFee = subtotal >= SHIPPING_THRESHOLD ? 0 : 5.99;
     const total = subtotal - discount + shippingFee;
 
     const setS = (k) => (e) => setShippingForm((p) => ({ ...p, [k]: e.target.value }));
+
 
     const validateStep0 = () => {
         const e = {};
