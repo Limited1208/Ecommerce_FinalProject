@@ -1,8 +1,29 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+const STORAGE_KEY = "strikezon:cart";
+
+function loadCart() {
+    try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return [];
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+    } catch {
+        return [];
+    }
+}
 
 export function useCart() {
-    const [cart, setCart] = useState([]);
+    const [cart, setCart] = useState(loadCart);
     const [toastMsg, setToastMsg] = useState(null);
+
+    useEffect(() => {
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(cart));
+        } catch {
+            /* quota / disabled storage — ignore */
+        }
+    }, [cart]);
 
     const cartCount = cart.reduce((sum, i) => sum + i.qty, 0);
 

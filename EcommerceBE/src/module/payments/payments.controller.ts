@@ -6,7 +6,7 @@ import { JwtAuthGuard } from 'src/common/guards/jwt-auth.decorator';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { GetUser } from 'src/common/decorators/get-user.decorator';
 import { PaymentPresenter } from './presenter/payment.presenter';
-import { PaymentProvider } from '@prisma/client/edge';
+import { PaymentProvider } from '@prisma/client';
 import type { Request } from 'express';
 import { ApiBearerAuth } from '@nestjs/swagger/dist/decorators/api-bearer.decorator';
 

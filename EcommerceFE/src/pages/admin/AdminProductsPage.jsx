@@ -152,7 +152,6 @@ export default function AdminProductsPage() {
         const next = rows.filter((r) => r.id !== deleteTarget.id);
         setRows(next);
         await tryDeleteProduct(deleteTarget.id);
-        await persistProducts(next);
         setDeleteTarget(null);
     };
 

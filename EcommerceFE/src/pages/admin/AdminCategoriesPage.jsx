@@ -107,7 +107,6 @@ export default function AdminCategoriesPage() {
         const next = rows.filter((r) => rowSlug(r) !== slug);
         setRows(next);
         await tryDeleteCategory(slug);
-        await persistCategories(next);
         setDeleteTarget(null);
     };
 

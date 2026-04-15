@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { data, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { logoutApi } from "../api/authApi";
 import { getProfileApi, updateProfileApi, changePasswordApi } from "../api/userApi";
 
@@ -16,6 +16,7 @@ function getUser() {
 function clearSession() {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    localStorage.removeItem("strikezon:cart");
 }
 
 export function useUser() {

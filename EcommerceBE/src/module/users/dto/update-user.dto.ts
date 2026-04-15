@@ -30,6 +30,26 @@ export class UpdateUserDto {
     @IsOptional()
     @IsString()
     lastName?: string;
+
+    @ApiProperty({ description: 'Phone number', example: '+1 555 000 0000', required: false })
+    @IsOptional()
+    @IsString()
+    phone?: string;
+
+    @ApiProperty({ description: 'Street address', example: '123 Main St', required: false })
+    @IsOptional()
+    @IsString()
+    address?: string;
+
+    @ApiProperty({ description: 'City', example: 'New York', required: false })
+    @IsOptional()
+    @IsString()
+    city?: string;
+
+    @ApiProperty({ description: 'Country', example: 'United States', required: false })
+    @IsOptional()
+    @IsString()
+    country?: string;
 }
 
 export class UpdateUserRoleDto{

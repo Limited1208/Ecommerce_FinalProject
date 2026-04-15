@@ -31,6 +31,18 @@ export class UserResponseDto {
     @ApiProperty({ description: 'User role', enum: Role })
     role: Role;
 
+    @ApiProperty({ description: 'Phone number', nullable: true, required: false })
+    phone?: string | null;
+
+    @ApiProperty({ description: 'Street address', nullable: true, required: false })
+    address?: string | null;
+
+    @ApiProperty({ description: 'City', nullable: true, required: false })
+    city?: string | null;
+
+    @ApiProperty({ description: 'Country', nullable: true, required: false })
+    country?: string | null;
+
     @ApiProperty({
         description: 'Account creation date',
         example: '2023-10-01T12:34:56.789Z',
