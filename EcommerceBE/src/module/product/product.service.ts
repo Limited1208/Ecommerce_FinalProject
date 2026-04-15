@@ -7,13 +7,13 @@ import {
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { ProductResponseDto } from './dto/product-response.dto';
-import { Category, Prisma, Product, ProductStatus } from '@prisma/client';
+import { Category, Prisma, Product, ProductStatus, ProductVariant } from '@prisma/client';
 import { QueryProductDto } from './dto/query-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 
 @Injectable()
 export class ProductService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async create(
     createProductDto: CreateProductDto,
@@ -28,16 +28,31 @@ export class ProductService {
       );
     }
 
-    if (createProductDto.stock == 0) {
-    }
+    const {categoryId, ...rest} = createProductDto;
+
+    const color = createProductDto.variant?.split(' / ')[0] ?? 'Default';
 
     const product = await this.prisma.product.create({
       data: {
-        ...createProductDto,
-        price: new Prisma.Decimal(createProductDto.price),
+        ...rest,
+        price: new Prisma.Decimal(rest.price),
+        originPrice: rest.originPrice ? new Prisma.Decimal(rest.originPrice) : null,
+        category: {
+          connect: {id: categoryId}
+        },
+        variants: rest.sizes?.length
+        ? {
+            create: rest.sizes.map((size) => ({
+              size,
+              color,
+              stock: rest.stock ?? 0,
+            })),
+          }
+        : undefined,
       },
       include: {
         category: true,
+        variants: true
       },
     });
     return this.formatProduct(product);
@@ -70,9 +85,9 @@ export class ProductService {
       ];
     }
 
-        if (status && status != 'all'){
-            where.status = status
-        }
+    if (status && status != 'all') {
+      where.status = status
+    }
 
     const total = await this.prisma.product.count({ where });
     const product = await this.prisma.product.findMany({
@@ -82,6 +97,7 @@ export class ProductService {
       orderBy: { createAt: 'desc' },
       include: {
         category: true,
+        variants: true,
       },
     });
 
@@ -101,6 +117,7 @@ export class ProductService {
       where: { id },
       include: {
         category: true,
+        variants: true,
       },
     });
 
@@ -145,6 +162,7 @@ export class ProductService {
       data: updateData,
       include: {
         category: true,
+        variants: true
       },
     });
 
@@ -168,6 +186,7 @@ export class ProductService {
       data: { status: status },
       include: {
         category: true,
+        variants: true
       },
     });
 
@@ -194,6 +213,7 @@ export class ProductService {
       data: { stock: newStock },
       include: {
         category: true,
+        variants: true
       },
     });
 
@@ -226,13 +246,40 @@ export class ProductService {
   }
 
   private formatProduct(
-    product: Product & { category: Category },
+    product: Product & { category: Category, variants: any[] },
   ): ProductResponseDto {
+    const variants = product.variants ?? [];
+    const sizes =
+      variants.length > 0
+        ? [...new Set(variants.map((v) => v.size))]
+        : product.sizes ?? [];
+
+    const firstVariant = variants[0];
+
     return {
-      ...product,
+      id: product.id,
+      name: product.name,
+      sku: product.sku,
+      stock: product.stock,
+      category: product.category?.name,
+      gender: product.gender,
+      status: product.status,
+
       price: Number(product.price),
-      category: product.category.name,
-      originPrice: Number(product.originPrice) || null,
+      originPrice: product.originPrice
+        ? Number(product.originPrice)
+        : null,
+      
+      imageUrl: product.imageUrl,
+      variant: firstVariant
+      ? `${firstVariant.color} / ${firstVariant.size}`
+      : product.variant,
+      sizes,
+
+      description: product.description,
+      material: product.material,
+      care: product.care,
+      badge: product.badge,
       createdAt: product.createAt,
       updatedAt: product.updateAt,
     };

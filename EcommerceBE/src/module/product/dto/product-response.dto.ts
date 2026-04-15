@@ -65,6 +65,12 @@ export class ProductResponseDto {
     imageUrl: string | null;
 
     @ApiProperty({
+        description: 'Product size',
+        example: '["S", "M", "L"]'
+    })
+    sizes: string[];
+
+    @ApiProperty({
         description: 'Product care',
         example: 'Wash cold, do not bleach'
     })

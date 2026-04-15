@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString, IsOptional, IsNumber, IsBoolean, IsEnum, Min, IsNotEmpty, MaxLength, } from 'class-validator';
+import { IsString, IsOptional, IsNumber, IsBoolean, IsEnum, Min, IsNotEmpty, MaxLength, IsArray, } from 'class-validator';
 import { ProductStatus, Badge, Gender } from '@prisma/client';
 import { Type } from 'class-transformer';
 
@@ -109,6 +109,25 @@ export class CreateProductDto {
     @IsOptional()
     @IsString()
     variant?: string;
+
+    @ApiPropertyOptional({
+        example: ['S', 'M', 'L'],
+        description: 'List of available sizes',
+    })
+    @IsOptional()
+    @IsArray()
+    @IsString({ each: true })
+    sizes?: string[];
+
+    @ApiPropertyOptional({
+        example: [{ size: 'M', color: 'Black', stock: 10 }],
+    })
+    @IsOptional()
+    variants?: {
+        size: string;
+        color: string;
+        stock?: number;
+    }[];
 
     @ApiProperty({ enum: Badge })
     @IsEnum(Badge)
