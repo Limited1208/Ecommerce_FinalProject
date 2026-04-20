@@ -13,6 +13,7 @@ import AdminPageShell from "../../components/admin/AdminPageShell";
 import AdminModal from "../../components/admin/AdminModal";
 import AdminConfirmDialog from "../../components/admin/AdminConfirmDialog";
 import AdminCategoryModal from "../../components/admin/AdminCategoryModal";
+import { data } from "react-router-dom";
 
 function slugify(name) {
     return name
@@ -103,10 +104,14 @@ export default function AdminCategoriesPage() {
 
     const confirmDelete = async () => {
         if (!deleteTarget) return;
+        if(productsInCategory > 0) {
+            alert(`Cannot delete category. Still has ${productsInCategory} product(s).`);
+            return;
+        }
         const slug = rowSlug(deleteTarget);
         const next = rows.filter((r) => rowSlug(r) !== slug);
         setRows(next);
-        await tryDeleteCategory(slug);
+        await tryDeleteCategory(deleteTarget.id);
         setDeleteTarget(null);
     };
 
@@ -183,9 +188,12 @@ export default function AdminCategoriesPage() {
                                                     <FiEdit2 size={13} /> Edit
                                                 </button>
                                                 <button
+                                                    disabled = {productsInCategory > 0}
                                                     type="button"
                                                     onClick={() => setDeleteTarget(row)}
-                                                    className="inline-flex items-center gap-1 text-[11px] text-[#ff0040] hover:opacity-80 cursor-pointer bg-transparent border-none p-0"
+                                                    className={`inline-flex items-center gap-1 text-[11px]
+                                                    ${count > 0 ? "text-gray-500 cursor-not-allowed" : "text-[#ff0040] hover:opacity-80"}
+                                                    bg-transparent border-none p-0`}
                                                 >
                                                     <FiTrash2 size={13} /> Delete
                                                 </button>

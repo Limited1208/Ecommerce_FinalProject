@@ -20,8 +20,6 @@ export class HandleReturnUseCase{
             throw new NotFoundException('Payment not found for orderId: ' + result.orderId);
         }
 
-        console.log(result);
-
         if(payment.status === 'PENDING'){
             await this.paymentRepo.updateByOrderId(result.orderId, {
                 status: result.success ? 'COMPLETED' : 'FAILED',
