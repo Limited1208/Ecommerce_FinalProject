@@ -1,13 +1,12 @@
 import { Inject, Injectable, NotFoundException } from "@nestjs/common";
-import { PAYMENT_GATEWAY_PORT } from "../ports/payment-gateway.port";
-import type { IPaymentRepository } from "../ports/payment-repository.port";
+import { PAYMENT_REPOSITORY_PORT, type IPaymentRepository } from "../ports/payment-repository.port";
 import { PaymentGatewayFactory } from "../../factory/payment-gateway.factory";
-import { PaymentProvider } from "@prisma/client";
+import { OrderStatus, PaymentProvider } from "@prisma/client";
 
 @Injectable()
 export class HandleIpnUseCase {
     constructor(
-        @Inject(PAYMENT_GATEWAY_PORT)
+        @Inject(PAYMENT_REPOSITORY_PORT)
         private readonly paymentRepo: IPaymentRepository,
         private readonly gatewayFactory: PaymentGatewayFactory,
     ) { }
@@ -34,6 +33,10 @@ export class HandleIpnUseCase {
             status: verifyResult.success ? 'COMPLETED' : 'FAILED',
             transactionId: verifyResult.providerTxnId ?? null,
         });
+
+        await this.paymentRepo.updateOrderById(payment.orderId, {
+            status: verifyResult.success ? OrderStatus.PROCESSING : OrderStatus.CANCELLED,
+        })
 
         return { code: '00', message: 'COMPLETED' };
     }

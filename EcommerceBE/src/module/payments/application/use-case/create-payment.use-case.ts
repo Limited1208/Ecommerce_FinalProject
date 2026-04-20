@@ -1,14 +1,13 @@
 import { BadRequestException, ForbiddenException, Inject, Injectable, NotFoundException } from "@nestjs/common";
-import { PAYMENT_GATEWAY_PORT } from "../ports/payment-gateway.port";
 import { PaymentGatewayFactory } from "../../factory/payment-gateway.factory";
-import type { IPaymentRepository } from "../ports/payment-repository.port";
+import { PAYMENT_REPOSITORY_PORT, type IPaymentRepository } from "../ports/payment-repository.port";
 import { CreatePaymentDto } from "../../dto/create-payment.dto";
 import { PaymentStatus, Prisma } from "@prisma/client";
 
 @Injectable()
 export class CreatePaymentUseCase {
     constructor(
-        @Inject(PAYMENT_GATEWAY_PORT)
+        @Inject(PAYMENT_REPOSITORY_PORT)
         private readonly paymentRepo: IPaymentRepository,
         private readonly gatewayFactory: PaymentGatewayFactory,
     ) { }

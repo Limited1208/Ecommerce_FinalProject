@@ -255,6 +255,7 @@ export class ProductService {
         : product.sizes ?? [];
 
     const firstVariant = variants[0];
+    const color = firstVariant?.color ?? null;
 
     return {
       id: product.id,
@@ -277,8 +278,13 @@ export class ProductService {
       sizes,
 
       description: product.description,
-      material: product.material,
-      care: product.care,
+      material: product.material
+      ? product.material.split(' · ')
+      : [],
+      care: product.care
+      ? product.care.split(' · ')
+      : [],
+      color,
       badge: product.badge,
       createdAt: product.createAt,
       updatedAt: product.updateAt,

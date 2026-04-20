@@ -1,9 +1,11 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { usePageTitle } from "../hooks/usePageTitle";
 
 export default function OrderConfirmationPage() {
     usePageTitle("Order Confirmed");
     const navigate = useNavigate();
+    const [searchParams] = useSearchParams();
+    const orderId = searchParams.get("orderId");
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-[#f5f0eb] px-4">
@@ -14,6 +16,9 @@ export default function OrderConfirmationPage() {
                 <h1 className="text-2xl font-semibold text-[#2c2c2c] mb-2">
                     Order Confirmed!
                 </h1>
+                {orderId && (
+                    <p className="text-xs text-[#aaa] mb-2 font-mono">#{orderId}</p>
+                )}
                 <p className="text-sm text-[#888] mb-8 leading-relaxed">
                     Thank you for your purchase. We'll send you an email with your order details and tracking information.
                 </p>

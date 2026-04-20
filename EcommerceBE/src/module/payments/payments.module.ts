@@ -6,7 +6,7 @@ import { HandleReturnUseCase } from './application/use-case/handle-return.use-ca
 import { HandleIpnUseCase } from './application/use-case/handle-ipn.use-case';
 
 import { PaymentRepository } from './domain/repositories/payment.repository';
-import { PAYMENT_GATEWAY_PORT } from './application/ports/payment-gateway.port';
+
 
 import { PaymentGatewayFactory } from './factory/payment-gateway.factory';
 import { VnpayGateway } from './gateways/vnpay/vnpay.gateway';
@@ -14,6 +14,7 @@ import { MomoGateway } from './gateways/momo/momo.gateway';
 import { PaypalGateway } from './gateways/paypal/paypal.gateway';
 
 import { PrismaModule } from 'src/prisma/prisma.module';
+import { PAYMENT_REPOSITORY_PORT } from './application/ports/payment-repository.port';
 
 @Module({
     imports: [PrismaModule],
@@ -22,7 +23,7 @@ import { PrismaModule } from 'src/prisma/prisma.module';
         CreatePaymentUseCase,
         HandleReturnUseCase,
         HandleIpnUseCase,
-        { provide: PAYMENT_GATEWAY_PORT, useClass: PaymentRepository },
+        { provide: PAYMENT_REPOSITORY_PORT, useClass: PaymentRepository },
         PaymentGatewayFactory,
         VnpayGateway,
         MomoGateway,

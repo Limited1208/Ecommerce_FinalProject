@@ -7,9 +7,9 @@ import LoadingSpinner from "../components/LoadingSpinner";
 import { gradients, shadows, tw } from "../assets/theme";
 
 export default function ProductPage() {
-    const { id }       = useParams();
-    const navigate     = useNavigate();
-    const context      = useOutletContext() ?? {};
+    const { id } = useParams();
+    const navigate = useNavigate();
+    const context = useOutletContext() ?? {};
     const { onAddToCart, addToCart } = context;
     const handleCartAdd = onAddToCart ?? addToCart;
 
@@ -21,19 +21,19 @@ export default function ProductPage() {
     usePageTitle(product?.name ?? "Product");
 
     const [selectedSize, setSelectedSize] = useState(null);
-    const [added, setAdded]               = useState(false);
+    const [added, setAdded] = useState(false);
 
     const fmt = (n) => `$${Number(n ?? 0).toFixed(2)}`;
 
     const discount = product?.originPrice && product.originPrice > product.price
         ? Math.round(((product.originPrice - product.price) / product.originPrice) * 100)
         : product?.originalPrice && product.originalPrice > product.price
-        ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
-        : null;
+            ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
+            : null;
 
     const handleAddToCart = () => {
         if (!product) return;
-        const colorPart      = product.variant?.split(" / ")[0] ?? product.name;
+        const colorPart = product.variant?.split(" / ")[0] ?? product.name;
         const updatedVariant = selectedSize ? `${colorPart} / ${selectedSize}` : product.variant;
         handleCartAdd?.({ ...product, variant: updatedVariant, selectedSize });
         setAdded(true);
@@ -76,9 +76,8 @@ export default function ProductPage() {
         );
     }
 
-    const careSteps = product.care ? product.care.split(" · ") : [];
+    const careSteps = product.care ?? [];
     const originPrice = product.originPrice ?? product.originalPrice;
-
     return (
         <>
             <style>{`
@@ -180,14 +179,18 @@ export default function ProductPage() {
                             )}
 
                             {/* Material */}
-                            {product.material && (
+                            {product.material?.length > 0 && (
                                 <div className="flex items-start gap-3 text-sm mb-6 p-4 rounded-xl bg-[#110700] border border-[#1e1000]">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" strokeWidth="1.5" className="mt-0.5 flex-shrink-0">
-                                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-                                    </svg>
                                     <div>
-                                        <p className="text-[10px] tracking-widest uppercase text-[#ff6b00] mb-0.5">Material</p>
-                                        <p className="text-white">{product.material}</p>
+                                        <p className="text-[10px] tracking-widest uppercase text-[#ff6b00] mb-1">Material</p>
+
+                                        <ul className="space-y-1">
+                                            {product.material.map((item, i) => (
+                                                <li key={i} className="text-white text-sm">
+                                                    • {item}
+                                                </li>
+                                            ))}
+                                        </ul>
                                     </div>
                                 </div>
                             )}
@@ -211,8 +214,8 @@ export default function ProductPage() {
                                                     className="px-4 py-2 rounded-lg text-xs tracking-widest uppercase font-semibold transition-all cursor-pointer border-none"
                                                     style={{
                                                         background: active ? gradients.brand : "#1a0e00",
-                                                        color:      active ? "#fff"          : "#664433",
-                                                        border:     active ? "1px solid transparent" : "1px solid #2a1500",
+                                                        color: active ? "#fff" : "#664433",
+                                                        border: active ? "1px solid transparent" : "1px solid #2a1500",
                                                     }}
                                                 >
                                                     {size}
@@ -229,7 +232,7 @@ export default function ProductPage() {
                                 className="neon-btn w-full py-4 rounded-xl text-sm tracking-widest uppercase font-bold transition-all mb-4 text-white border-none cursor-pointer"
                                 style={{
                                     background: added ? "linear-gradient(135deg,#22c55e,#16a34a)" : gradients.brand,
-                                    boxShadow:  added ? "0 0 20px #22c55e55" : shadows.btnGlow,
+                                    boxShadow: added ? "0 0 20px #22c55e55" : shadows.btnGlow,
                                 }}
                             >
                                 {added ? "Added to Cart ✓" : "Add to Cart 🔥"}

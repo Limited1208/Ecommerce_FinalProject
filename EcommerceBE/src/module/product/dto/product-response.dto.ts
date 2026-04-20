@@ -56,7 +56,7 @@ export class ProductResponseDto {
         example: 'WH-001',
     })
     sku: string;
-    
+
 
     @ApiProperty({
         description: 'Product image url',
@@ -71,15 +71,20 @@ export class ProductResponseDto {
     sizes: string[];
 
     @ApiProperty({
-        description: 'Product care',
-        example: 'Wash cold, do not bleach'
+        example: ['Machine wash 30°C', 'No bleach', 'Air dry'],
     })
-    care: string | null
+    care: string[];
 
     @ApiProperty({
-        description: 'Product material'
+        example: ['100% Polyester', 'Mesh liner'],
     })
-    material: string | null
+    material: string[];
+
+    @ApiProperty({
+        example: 'Black',
+        description: 'Main color of product',
+    })
+    color: string | null;
 
     @ApiProperty({
         description: 'Product variant'

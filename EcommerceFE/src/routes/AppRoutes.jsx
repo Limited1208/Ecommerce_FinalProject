@@ -9,6 +9,7 @@ import LoginPage from "../pages/loginPage";
 import RegisterPage from "../pages/registerPage";
 import CheckoutPage from "../pages/checkOutPage";
 import OrderConfirmationPage from "../pages/orderConfirmationPage";
+import PaymentFailedPage from "../pages/paymentOrderFailed"
 import ProfilePage from "../pages/profilePage";
 import ForgotPasswordPage from "../pages/fotgotPasswordPage";
 import AdminLoginPage from "../pages/admin/AdminLoginPage";
@@ -148,6 +149,9 @@ function AppRoutes() {
         <Route path="/login"    element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage/>}/>
+
+        <Route path= "/order-confirmation" element= {<OrderConfirmationPage/>}/>
+        <Route path= "/payment-failed" element= {<PaymentFailedPage/>}/>
 
       </Routes>
     </BrowserRouter>

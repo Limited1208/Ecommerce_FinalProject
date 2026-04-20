@@ -26,6 +26,13 @@ export class PaymentRepository implements IPaymentRepository {
         });
     }
 
+    updateOrderById(orderId: string, data: Prisma.OrderUpdateInput): Promise<Order> {
+        return this.prisma.order.update({
+            where: {id: orderId},
+            data
+        })
+    }
+
     async create(data: Prisma.PaymentCreateInput): Promise<Payment> {
         return this.prisma.payment.create({ data });
     }
