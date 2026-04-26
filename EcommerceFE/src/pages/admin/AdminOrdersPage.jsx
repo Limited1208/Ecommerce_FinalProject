@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { FiEdit2, FiPlus, FiTrash2 } from "react-icons/fi";
 import { usePageTitle } from "../../hooks/usePageTitle";
-import { persistOrders, tryDeleteOrder } from "../../api/adminApi";
-import { fetchAdminOrders } from "../../api/adminApi";
+import { persistOrders, tryDeleteOrder, fetchAdminOrders } from "../../api/adminApi";
+import PaginationControls from "../../components/admin/PaginationControls";
 import { tw } from "../../assets/theme";
 import AdminPageShell from "../../components/admin/AdminPageShell";
 import AdminModal from "../../components/admin/AdminModal";
@@ -10,14 +10,14 @@ import AdminConfirmDialog from "../../components/admin/AdminConfirmDialog";
 import { TruncId } from "../../components/functions/truncId";
 
 const STATUS_STYLES = {
-    Delivered: "bg-[#14532d] text-[#86efac] border border-[#166534]",
-    Shipped: "bg-[#1e3a5f] text-[#93c5fd] border border-[#1d4ed8]",
-    Processing: "bg-[#713f12] text-[#fde047] border border-[#a16207]",
-    Pending: "bg-[#2a1500] text-[#aa8866] border border-[#2a1500]",
-    Cancelled: "bg-[#450a0a] text-[#fca5a5] border border-[#991b1b]",
+    DELIVERED: "bg-[#14532d] text-[#86efac] border border-[#166534]",
+    SHIPPED: "bg-[#1e3a5f] text-[#93c5fd] border border-[#1d4ed8]",
+    PROCESSING: "bg-[#713f12] text-[#fde047] border border-[#a16207]",
+    PENDING: "bg-[#2a1500] text-[#aa8866] border border-[#2a1500]",
+    CANCELLED: "bg-[#450a0a] text-[#fca5a5] border border-[#991b1b]",
 };
 
-const STATUS_OPTIONS = ["Pending", "Processing", "Shipped", "Delivered", "Cancelled"];
+const STATUS_OPTIONS = ["PENDING", "PROCESSING", "SHIPPED", "DELIVERED", "CANCELLED"];
 
 function statusClass(status) {
     return STATUS_STYLES[status] ?? "bg-[#2a1500] text-[#aa8866] border border-[#2a1500]";
@@ -30,13 +30,18 @@ export default function AdminOrdersPage() {
     const [modal, setModal] = useState(false);
     const [deleteTarget, setDeleteTarget] = useState(null);
     const [form, setForm] = useState(null);
+    const [page, setPage] = useState(1);
+    const [limit] = useState(10);
+    const [meta, setMeta] = useState({ total: 0, page: 1, limit: 10 });
 
     const reload = useCallback(() => {
-        fetchAdminOrders().then((data) => {
-            setRows(data);
+        setLoading(true);
+        fetchAdminOrders({ page, limit }).then(({ items, meta }) => {
+            setRows(items);
+            setMeta(meta || { total: 0, page, limit });
             setLoading(false);
         });
-    }, []);
+    }, [page, limit]);
 
     useEffect(() => {
         reload();
@@ -44,8 +49,18 @@ export default function AdminOrdersPage() {
 
     const idOf = (o) => o.id ?? o.orderId ?? o.number ?? "—";
     const emailOf = (o) => o.userEmail;
-    const dateOf = (o) =>
+    const formatDisplayDate = (o) =>
         new Date(o.createdAt).toLocaleDateString();
+    const formatDateInput = (value) => {
+        if (!value) return "";
+        const date = new Date(value);
+        if (!Number.isNaN(date.getTime())) return date.toISOString().slice(0, 10);
+        if (typeof value === "string") {
+            const match = value.match(/(\d{4}-\d{2}-\d{2})/);
+            if (match) return match[1];
+        }
+        return "";
+    };
     const itemsOf = (o) => {
         if (Array.isArray(o.items)) return o.items.length;
         if (Array.isArray(o.orderItem)) return o.orderItem.length;
@@ -72,7 +87,7 @@ export default function AdminOrdersPage() {
             customerEmail: emailOf(o),
             total: typeof o.total === "number" ? o.total : Number(o.total) || 0,
             status: o.status ?? "Pending",
-            placedAt: dateOf(o) || new Date().toISOString().slice(0, 10),
+            placedAt: formatDateInput(Date.now()),
             items: itemsOf(o),
         });
         setModal(true);
@@ -80,20 +95,31 @@ export default function AdminOrdersPage() {
 
     const saveOrder = async () => {
         if (!form) return;
-        const order = {
-            id: form.id,
-            customerEmail: form.customerEmail.trim(),
-            total: typeof form.total === "number" ? form.total : parseFloat(form.total) || 0,
-            status: form.status,
-            placedAt: form.placedAt,
-            items: typeof form.items === "number" ? form.items : parseInt(form.items, 10) || 0,
-        };
-        const exists = rows.some((r) => String(idOf(r)) === String(order.id));
-        const next = exists
-            ? rows.map((r) => (String(idOf(r)) === String(order.id) ? order : r))
-            : [...rows, order];
+        const existing = rows.find((r) => String(idOf(r)) === String(form.id));
+        const now = new Date().toISOString();
+        const updatedRow = existing
+            ? {
+                ...existing,
+                status: form.status,
+                updatedAt: now, // ✅ FIX
+            }
+            : {
+                id: form.id,
+                userEmail: form.customerEmail,
+                totalAmount:
+                    typeof form.total === "number"
+                        ? form.total
+                        : parseFloat(form.total) || 0,
+                status: form.status,
+                createdAt: form.placedAt,
+                updatedAt: now, 
+            };
+        const next = existing
+            ? rows.map((r) => (String(idOf(r)) === String(form.id) ? updatedRow : r))
+            : [...rows, updatedRow];
+
         setRows(next);
-        await persistOrders(order.id, order);
+        await persistOrders(form.id, { status: form.status.toUpperCase(), updatedAt: now });
         setModal(false);
         setForm(null);
     };
@@ -174,9 +200,9 @@ export default function AdminOrdersPage() {
                             ) : (
                                 rows.map((o, i) => (
                                     <tr key={String(idOf(o)) + i} className="hover:bg-[#160a00]/80 transition-colors">
-                                        <td className="py-3 px-4 text-white font-mono text-xs"><TruncId id = {idOf(o)} /></td>
+                                        <td className="py-3 px-4 text-white font-mono text-xs"><TruncId id={idOf(o)} /></td>
                                         <td className="py-3 px-4 text-white">{emailOf(o)}</td>
-                                        <td className="py-3 px-4">{dateOf(o)}</td>
+                                        <td className="py-3 px-4">{formatDisplayDate(o)}</td>
                                         <td className="py-3 px-4">{itemsOf(o)}</td>
                                         <td className="py-3 px-4 text-[#ff6b00]">{fmt(o.total)}</td>
                                         <td className="py-3 px-4">
@@ -209,6 +235,15 @@ export default function AdminOrdersPage() {
                     </table>
                 </div>
             </div>
+
+            <PaginationControls
+                page={page}
+                limit={limit}
+                total={meta?.total}
+                count={rows.length}
+                hasMore={rows.length === limit}
+                onPageChange={(nextPage) => setPage(Math.max(1, nextPage))}
+            />
 
             {modal && form && (
                 <AdminModal
@@ -263,7 +298,7 @@ export default function AdminOrdersPage() {
                     <input
                         type="date"
                         className={tw.input}
-                        value={form.placedAt?.slice?.(0, 10) ?? form.placedAt}
+                        value={form.placedAt ?? ""}
                         onChange={(e) => setForm((f) => ({ ...f, placedAt: e.target.value }))}
                     />
                     <label className={tw.label}>Status</label>

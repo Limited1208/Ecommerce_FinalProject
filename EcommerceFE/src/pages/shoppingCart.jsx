@@ -205,13 +205,6 @@ function SuggestedProducts({ cartIds, onAddToCart }) {
     );
 }
 
-/* ─────────────────────────────
-   Main Page
-   Props from App:
-     cart, setCart, updateQty, removeItem  — shared cart state
-     orderData                             — snapshot passed from CartPanel
-     onContinueShopping                    — navigate back to home
-───────────────────────────── */
 export default function ShoppingCart({
     cart,
     setCart,

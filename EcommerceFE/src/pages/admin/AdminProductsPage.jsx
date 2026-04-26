@@ -15,6 +15,7 @@ import { TruncId } from "../../components/functions/truncId";
 import AdminPageShell from "../../components/admin/AdminPageShell";
 import AdminConfirmDialog from "../../components/admin/AdminConfirmDialog";
 import AdminProductModal from "../../components/admin/AdminProductModal";
+import PaginationControls from "../../components/admin/PaginationControls";
 import SearchBar from "../../components/admin/SearchBar";
 
 /* ── Build exact API payload ── */
@@ -103,14 +104,22 @@ export default function AdminProductsPage() {
     const [deleteTarget, setDeleteTarget] = useState(null);
     const [form, setForm] = useState(null);
     const [categoryOptions, setCategoryOptions] = useState([]);
+    const [page, setPage] = useState(1);
+    const [limit] = useState(10);
+    const [meta, setMeta] = useState({ total: 0, page: 1, limit: 10, totalPages: 1 });
 
     useEffect(() => {
         getCategoryOptions().then(setCategoryOptions);
     }, []);
 
     const reload = useCallback(() => {
-        fetchAdminProducts().then((data) => { setRows(data); setLoading(false); });
-    }, []);
+        setLoading(true);
+        fetchAdminProducts({ page, limit }).then(({ items, meta }) => {
+            setRows(items);
+            setMeta(meta || { total: 0, page, limit, totalPages: 1 });
+            setLoading(false);
+        });
+    }, [page, limit]);
 
     useEffect(() => { reload(); }, [reload]);
 
@@ -278,6 +287,15 @@ export default function AdminProductsPage() {
                     </table>
                 </div>
             </div>
+
+            <PaginationControls
+                page={page}
+                limit={limit}
+                total={meta?.total}
+                count={rows.length}
+                hasMore={rows.length === limit}
+                onPageChange={(nextPage) => setPage(Math.max(1, nextPage))}
+            />
 
             {/* ── Modal ── */}
             {modal === "edit" && form && (

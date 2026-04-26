@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { FiEdit2, FiPlus, FiTrash2 } from "react-icons/fi";
 import { usePageTitle } from "../../hooks/usePageTitle";
 import {
@@ -6,6 +6,7 @@ import {
     tryDeleteUser,
     fetchAdminUsers,
 } from "../../api/adminApi";
+import PaginationControls from "../../components/admin/PaginationControls";
 import { tw } from "../../assets/theme";
 import { TruncId } from "../../components/functions/truncId";
 import AdminPageShell from "../../components/admin/AdminPageShell";
@@ -28,10 +29,12 @@ export default function AdminUsersPage() {
     const [deleteTarget, setDeleteTarget] = useState(null);
     const [form, setForm] = useState(null);
     const [search, setSearch] = useState("");
+    const [page, setPage] = useState(1);
+    const [limit] = useState(10);
 
     const reload = useCallback(() => {
-        fetchAdminUsers().then((data) => {
-            setRows(data);
+        fetchAdminUsers().then(({ items }) => {
+            setRows(items);
             setLoading(false);
         });
     }, []);
@@ -57,15 +60,26 @@ export default function AdminUsersPage() {
         setModal(true);
     };
 
-    const filtered = rows.filter((u) => {
-        const keyword = search.toLowerCase();
-        return (
-            u.email?.toLowerCase().includes(keyword) ||
-            displayName(u).toLowerCase().includes(keyword) ||
-            String(u.id).includes(keyword) ||
-            (u.role ?? "").toLowerCase().includes(keyword)
-        );
-    });
+    const filteredRows = useMemo(() => {
+        return rows.filter((u) => {
+            const keyword = search.toLowerCase();
+            return (
+                u.email?.toLowerCase().includes(keyword) ||
+                displayName(u).toLowerCase().includes(keyword) ||
+                String(u.id).includes(keyword) ||
+                (u.role ?? "").toLowerCase().includes(keyword)
+            );
+        });
+    }, [rows, search]);
+
+    const pageCount = Math.max(1, Math.ceil(filteredRows.length / limit));
+    const pageRows = filteredRows.slice((page - 1) * limit, page * limit);
+
+    useEffect(() => {
+        if (page > pageCount) {
+            setPage(pageCount);
+        }
+    }, [page, pageCount]);
 
 
     const saveUser = async () => {
@@ -143,14 +157,14 @@ export default function AdminUsersPage() {
                                         Loading…
                                     </td>
                                 </tr>
-                            ) : rows.length === 0 ? (
+                            ) : filteredRows.length === 0 ? (
                                 <tr>
                                     <td colSpan={6} className="py-10 text-center text-[#664433]">
                                         No users found.
                                     </td>
                                 </tr>
                             ) : (
-                                filtered.map((u) => (
+                                pageRows.map((u) => (
                                     <tr key={u.id} className="hover:bg-[#160a00]/80 transition-colors">
                                         <td className="py-3 px-4 w-20"><TruncId id={u.id} /></td>
                                         <td className="py-3 px-4 text-white">{u.email}</td>
@@ -184,6 +198,14 @@ export default function AdminUsersPage() {
                     </table>
                 </div>
             </div>
+
+            <PaginationControls
+                page={page}
+                limit={limit}
+                total={filteredRows.length}
+                count={pageRows.length}
+                onPageChange={(nextPage) => setPage(Math.max(1, Math.min(pageCount, nextPage)))}
+            />
 
             {modal && form && (
                 <AdminModal

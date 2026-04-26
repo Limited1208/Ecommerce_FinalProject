@@ -103,14 +103,14 @@ export const tw = {
     cardPaddedLg: "bg-[#130900] border border-[#2a1500] rounded-2xl p-8",
 
     // ── Form elements
-    input: "w-full px-3.5 py-2.5 bg-[#110700] border border-[#2a1500] rounded-lg text-sm text-white outline-none transition-colors focus:border-[#ff6b00] placeholder-[#2a1500]",
-    select: "w-full px-3.5 py-2.5 bg-[#110700] border border-[#2a1500] rounded-lg text-sm text-white outline-none transition-colors focus:border-[#ff6b00] cursor-pointer",
+    input: "w-full px-3.5 py-2.5 bg-[#110700] border border-[#2a1500] rounded-lg text-sm text-white outline-none transition-colors duration-300 ease-out focus:border-[#ff6b00] placeholder-[#2a1500]",
+    select: "w-full px-3.5 py-2.5 bg-[#110700] border border-[#2a1500] rounded-lg text-sm text-white outline-none transition-colors duration-300 ease-out focus:border-[#ff6b00] cursor-pointer",
 
     // ── Buttons
-    btnPrimary: "px-6 py-3 rounded-lg text-xs font-bold tracking-widest uppercase text-white cursor-pointer transition-all hover:scale-[1.02] border-none",
-    btnGhost: "px-6 py-3 rounded-lg text-xs font-bold tracking-widest uppercase border border-[#2a1500] text-[#664433] bg-transparent cursor-pointer transition-all hover:border-[#ff6b00] hover:text-[#ff6b00]",
-    btnIcon: "w-8 h-8 border border-[#2a1500] rounded flex items-center justify-center text-[#555] transition-all hover:border-[#ff6b00] hover:text-[#ff6b00]",
-    btnCheckout: "w-full rounded-lg py-3.5 text-xs tracking-widest uppercase font-bold text-white transition-all hover:scale-[1.02] border-none cursor-pointer",
+    btnPrimary: "px-6 py-3 rounded-lg text-xs font-bold tracking-widest uppercase text-white cursor-pointer transition-all duration-300 ease-out hover:scale-[1.02] border-none",
+    btnGhost: "px-6 py-3 rounded-lg text-xs font-bold tracking-widest uppercase border border-[#2a1500] text-[#664433] bg-transparent cursor-pointer transition-all duration-300 ease-out hover:border-[#ff6b00] hover:text-[#ff6b00]",
+    btnIcon: "w-8 h-8 border border-[#2a1500] rounded flex items-center justify-center text-[#555] transition-all duration-300 ease-out hover:border-[#ff6b00] hover:text-[#ff6b00]",
+    btnCheckout: "w-full rounded-lg py-3.5 text-xs tracking-widest uppercase font-bold text-white transition-all duration-300 ease-out hover:scale-[1.02] border-none cursor-pointer",
 
     // ── Typography
     label: "text-[10px] tracking-[0.2em] uppercase text-[#664433]",

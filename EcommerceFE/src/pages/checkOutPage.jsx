@@ -208,11 +208,16 @@ export default function CheckoutPage() {
         }
     };
 
+    const clearCart = () => {
+    setCart([]); // clear state
+    localStorage.removeItem("strkezon:cart"); // clear storage
+    };
+
     const createPayment = async (orderId) => {
         try {
             const paymentResult = await paymentOrderApi(orderId, paymentMethod);
             const paymentUrl = paymentResult.data?.paymentUrl;
-            console.log("Payment result:", paymentResult, "Redirecting to:", paymentUrl);
+            clearCart();
             if (!paymentUrl) {
                 throw new Error("No payment URL returned");
             }

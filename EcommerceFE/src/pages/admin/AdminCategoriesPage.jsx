@@ -8,12 +8,12 @@ import {
     fetchAdminCategories,
     createCategory,
 } from "../../api/adminApi";
+import PaginationControls from "../../components/admin/PaginationControls";
 import { tw } from "../../assets/theme";
 import AdminPageShell from "../../components/admin/AdminPageShell";
 import AdminModal from "../../components/admin/AdminModal";
 import AdminConfirmDialog from "../../components/admin/AdminConfirmDialog";
 import AdminCategoryModal from "../../components/admin/AdminCategoryModal";
-import { data } from "react-router-dom";
 
 function slugify(name) {
     return name
@@ -31,16 +31,24 @@ export default function AdminCategoriesPage() {
     const [deleteTarget, setDeleteTarget] = useState(null);
     const [form, setForm] = useState(null);
     const [productList, setProductList] = useState([]);
+    const [page, setPage] = useState(1);
+    const [limit] = useState(10);
+    const [meta, setMeta] = useState({ total: 0, page: 1, limit: 10, totalPages: 1 });
 
     const reload = useCallback(() => {
-        fetchAdminCategories().then((data) => {
-            setRows(data);
+        setLoading(true);
+        fetchAdminCategories({ page, limit }).then(({ items, meta }) => {
+            setRows(items);
+            setMeta(meta || { total: 0, page, limit, totalPages: 1 });
             setLoading(false);
         });
+    }, [page, limit]);
+
+    useEffect(() => {
+        fetchAdminProducts().then(({ items }) => setProductList(items));
     }, []);
 
     useEffect(() => {
-        fetchAdminProducts().then(setProductList);
         reload();
     }, [reload]);
 
@@ -102,9 +110,13 @@ export default function AdminCategoriesPage() {
     }
 };
 
+    const productsInCategory = deleteTarget
+        ? deleteTarget.productCount ?? productList.filter((p) => p.category === nameOf(deleteTarget)).length
+        : 0;
+
     const confirmDelete = async () => {
         if (!deleteTarget) return;
-        if(productsInCategory > 0) {
+        if (productsInCategory > 0) {
             alert(`Cannot delete category. Still has ${productsInCategory} product(s).`);
             return;
         }
@@ -114,10 +126,6 @@ export default function AdminCategoriesPage() {
         await tryDeleteCategory(deleteTarget.id);
         setDeleteTarget(null);
     };
-
-    const productsInCategory = deleteTarget
-        ? productList.filter((p) => p.category === nameOf(deleteTarget)).length
-        : 0;
 
     return (
         <AdminPageShell
@@ -206,6 +214,15 @@ export default function AdminCategoriesPage() {
                     </table>
                 </div>
             </div>
+
+            <PaginationControls
+                page={page}
+                limit={limit}
+                total={meta?.total}
+                count={rows.length}
+                hasMore={rows.length === limit}
+                onPageChange={(nextPage) => setPage(Math.max(1, nextPage))}
+            />
 
             {modal && form && (
                 <AdminCategoryModal

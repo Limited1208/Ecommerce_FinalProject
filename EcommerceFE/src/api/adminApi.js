@@ -13,52 +13,63 @@ export const adminLoginApi = (email, password) =>
 export const fetchAdminStats = () =>
     adminClient.get("/stats").then((res) => res.data);
 
-function firstArray(payload, keys) {
+function extractArray(payload, keys = []) {
     if (Array.isArray(payload)) return payload;
     if (!payload || typeof payload !== "object") return [];
+    if (Array.isArray(payload.data)) return payload.data;
     for (const k of keys) {
         if (Array.isArray(payload[k])) return payload[k];
     }
     return [];
 }
 
-export async function fetchAdminProducts() {
+export async function fetchAdminProducts(params = {}) {
     try {
-        const { data } = await adminClient.get("/products", { params: { isActive: true, page: 1, limit: 10 } });
-        return firstArray(data, ["products", "content", "items", "data"]);
+        const { data } = await adminClient.get("/products", { params: { isActive: true, ...params } });
+        return {
+            items: extractArray(data, ["products", "content", "items", "data"]),
+            meta: data.meta ?? {},
+        };
     } catch {
-        return [];
+        return { items: [], meta: {} };
     }
 }
 
-export async function fetchAdminUsers() {
+export async function fetchAdminUsers(params = {}) {
     try {
-        const { data } = await adminClient.get("/users", { params: { page: 1, limit: 10 } });
-        return firstArray(data, ["users", "content", "items", "data"]);
+        const { data } = await adminClient.get("/users", { params });
+        return {
+            items: extractArray(data, ["users", "content", "items", "data"]),
+            meta: data.meta ?? {},
+        };
     } catch {
-        return [];
+        return { items: [], meta: {} };
     }
 }
 
 /** GET /admin/categories — on empty/error uses counts from local catalog. */
-export async function fetchAdminCategories() {
+export async function fetchAdminCategories(params = {}) {
     try {
-        const { data } = await adminClient.get("/categories", { params: { page: 1, limit: 10 } });
-        const list = firstArray(data, ["categories", "content", "items", "data"]);
-        if (list.length) return list;
+        const { data } = await adminClient.get("/categories", { params });
+        return {
+            items: extractArray(data, ["categories", "content", "items", "data"]),
+            meta: data.meta ?? {},
+        };
     } catch {
-        return [];
+        return { items: [], meta: {} };
     }
-    return [];
 }
 
 /** GET /admin/orders */
-export async function fetchAdminOrders() {
+export async function fetchAdminOrders(params = {}) {
     try {
-        const { data } = await adminClient.get("/orders/admin/all", { params: { limit: 10, page: 1 } });
-        return firstArray(data.data, ["orders", "content", "items", "data"]);
+        const { data } = await adminClient.get("/orders/admin/all", { params });
+        return {
+            items: extractArray(data, ["orders", "content", "items", "data"]),
+            meta: data.meta ?? { total: data.total, page: data.page, limit: data.limit },
+        };
     } catch {
-        return [];
+        return { items: [], meta: {} };
     }
 }
 
@@ -72,7 +83,7 @@ export function defaultNewProduct() {
 }
 
 export function getCategoryOptions() {
-    return fetchAdminCategories().then((data) => data.map((c) => ({ id: c.id, name: c.name })));
+    return fetchAdminCategories().then(({ items }) => items.map((c) => ({ id: c.id, name: c.name })));
 }
 
 export async function createProduct(product) {
@@ -124,7 +135,7 @@ export async function persistCategories(id, row) {
 
 export async function persistOrders(id, row) {
     try {
-        await adminClient.patch(`/orders/${id}`, row);
+        await adminClient.patch(`/orders/admin/${id}`, row);
     } catch {
         /* local-only */
     }
@@ -156,7 +167,7 @@ export async function tryDeleteCategory(id) {
 
 export async function tryDeleteOrder(orderId) {
     try {
-        await adminClient.delete(`/orders/${orderId}`);
+        await adminClient.delete(`/orders/admin/${orderId}`);
     } catch {
         /* local-only */
     }

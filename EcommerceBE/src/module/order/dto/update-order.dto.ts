@@ -10,19 +10,10 @@ export class UpdateOrderDto{
     @IsEnum(OrderStatus)
     status ?: OrderStatus;
 
-@ApiProperty({
-    example: 'VNPOST-123456789',
-    description: 'Shipping tracking number',
-})
-    @IsOptional()
-    @IsString()
-    trackingNumber?: string;
-
     @ApiProperty({
-    example: 'Customer requested fast delivery. Packed and shipped via VNPost.',
-    description: 'Internal note for admin',
-})
+        example: '2024-06-01T12:00:00Z',
+        description: 'The date and time when the order was placed'
+    })
     @IsOptional()
-    @IsString()
-    note?: string;
+    updatedAt?: Date;
 }
