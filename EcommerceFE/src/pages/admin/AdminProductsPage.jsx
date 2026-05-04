@@ -20,21 +20,39 @@ import SearchBar from "../../components/admin/SearchBar";
 
 /* ── Build exact API payload ── */
 export function buildProductPayload(form) {
+    const variants = Array.isArray(form.variants) ? form.variants : [];
+
+    const totalStock = variants.reduce(
+        (sum, v) => sum + (Number(v?.stock) || 0),
+        0
+    );
     return {
         name: form.name?.trim() ?? "",
         sku: form.sku?.trim() ?? "",
         description: form.description?.trim() ?? "",
         price: Number(form.price) || 0,
         originPrice: form.originPrice ? Number(form.originPrice) : null,
-        stock: Number(form.stock) || 0,
+        stock: totalStock,
         imageUrl: form.imageUrl?.trim() ?? "",
         status: form.status ?? "InStock",
-        care: form.care?.trim() ?? "",
-        material: form.material?.trim() ?? "",
-        variant: form.variant?.trim() ?? "",
-        badge: form.badge?.trim() || null,
+        care: String(form.care ?? "").trim(),
+        material: String(form.material ?? "").trim(),
+        variant: String(form.variant ?? "").trim(),
+        badge: form.badge || "New",
         gender: form.gender ?? "Men",
         categoryId: form.categoryId ?? "",
+        ...(variants.length > 0 && {
+            variants: {
+                create: variants.map(v => ({
+                    size: v.size,
+                    color: v.color,
+                    stock: Number(v.stock) || 0,
+                }))
+            }
+        }),
+        ...(form.sizes?.length > 0 && {
+            sizes: form.sizes,
+        }),
     };
 }
 
@@ -91,6 +109,11 @@ function Th({ children, right }) {
     );
 }
 
+const calcStock = (variants) =>
+    Array.isArray(variants)
+        ? variants.reduce((sum, v) => sum + (Number(v.stock) || 0), 0)
+        : 0;
+
 /* ══════════════════════════════════════
    PAGE
 ══════════════════════════════════════ */
@@ -137,8 +160,24 @@ export default function AdminProductsPage() {
             || String(p.category ?? "").toLowerCase().includes(q);
     });
 
-    const openCreate = () => { setForm(defaultNewProduct()); setModal("edit"); };
-    const openEdit = (p) => { setForm({ ...p }); setModal("edit"); };
+    const openCreate = () => { setForm({
+        ...defaultNewProduct(),
+        variants: [],
+        sizes: [],
+        stock: 0,
+    });
+    setModal("edit"); };
+    const openEdit = (p) => { 
+        const variants = Array.isArray(p.variants) ? p.variants : [];
+        const totalStock = calcStock(p.variants);
+        console.log("Opening edit modal for product:",p.category.id);
+        setForm({
+            ...p,
+            categoryId: p.categoryId || p.category?.id || "", 
+            variants, 
+            stock: totalStock }); 
+        setModal("edit");
+    };
     const closeModal = () => { setModal(null); setForm(null); };
 
     const saveProduct = async () => {
@@ -147,6 +186,7 @@ export default function AdminProductsPage() {
             if (form.id) {
                 await persistProducts(form.id, buildProductPayload(form));
             } else {
+                console.log("Creating product with payload:", buildProductPayload(form));
                 await createProduct(buildProductPayload(form));
             }
             await reload();
@@ -202,6 +242,7 @@ export default function AdminProductsPage() {
                                 <Th>Product</Th>
                                 <Th>Category</Th>
                                 <Th>Price</Th>
+                                <Th>Stock</Th>
                                 <Th>Badge</Th>
                                 <Th>Status</Th>
                                 <Th right>Actions</Th>
@@ -257,6 +298,15 @@ export default function AdminProductsPage() {
                                                     <span className="text-[#664433] text-[11px] line-through">{fmt(p.originPrice)}</span>
                                                 )}
                                             </div>
+                                        </td>
+
+                                        {/* Stock */}
+                                        <td className="py-3 px-4 text-xs text-[#aa8866]">
+                                            {p.stock > 0 ? (
+                                                <span>{p.stock} pcs</span>
+                                            ) : (
+                                                <span className="text-[#ff0040]">Out of stock</span>
+                                            )}
                                         </td>
 
                                         {/* Badge */}

@@ -40,7 +40,7 @@ export default function AdminProductModal({ form, setForm, isEdit, onClose, onSa
           <div className="flex flex-col gap-1.5">
             <label className={tw.label}>SKU</label>
             <input className={tw.input} placeholder="SKU-12345"
-              value={form.sku ?? ""} onChange={setF("sku")} />
+              value={form.sku ?? ""} onChange={setF("sku")} required />
           </div>
         </div>
 
@@ -53,7 +53,7 @@ export default function AdminProductModal({ form, setForm, isEdit, onClose, onSa
         </div>
 
         {/* price + originPrice + stock */}
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 gap-4">
           <div className="flex flex-col gap-1.5">
             <label className={tw.label}>Price <span className="text-[#ff0040]">*</span></label>
             <input type="number" step="0.01" min="0" className={tw.input} placeholder="19.99"
@@ -65,19 +65,14 @@ export default function AdminProductModal({ form, setForm, isEdit, onClose, onSa
               value={form.originPrice ?? ""}
               onChange={(e) => setForm((f) => ({ ...f, originPrice: parseFloat(e.target.value) || null }))} />
           </div>
-          <div className="flex flex-col gap-1.5">
-            <label className={tw.label}>stock</label>
-            <input type="number" min="0" className={tw.input} placeholder="100"
-              value={form.stock ?? ""} onChange={setInt("stock")} />
-          </div>
         </div>
 
         {/* categoryId + gender + status */}
         <div className="grid grid-cols-3 gap-4">
           <div className="flex flex-col gap-1.5">
-            <label className={tw.label}>categoryId <span className="text-[#ff0040]">*</span></label>
+            <label className={tw.label}>category <span className="text-[#ff0040]">*</span></label>
             <select className={tw.select}
-              value={form.categoryId ?? ""}
+              value={form.categoryId ?? ""} required
               onChange={(e) => setForm((f) => ({ ...f, categoryId: e.target.value }))}>
               <option value="">— Select —</option>
               {categoryOptions.map((c) => (
@@ -105,25 +100,95 @@ export default function AdminProductModal({ form, setForm, isEdit, onClose, onSa
         </div>
 
         {/* badge + variant */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="flex flex-col gap-1.5">
-            <label className={tw.label}>badge</label>
-            <input className={tw.input} placeholder="BestSeller · New · Sale"
-              value={form.badge ?? ""}
-              onChange={(e) => setForm((f) => ({ ...f, badge: e.target.value.trim() || null }))} />
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <label className={tw.label}>variant</label>
-            <input className={tw.input} placeholder="Size M - Black"
-              value={form.variant ?? ""} onChange={setF("variant")} />
-          </div>
+        <div className="flex flex-col gap-1.5">
+          <label className={tw.label}>badge</label>
+          <select
+            className={tw.select}
+            value={form.badge ?? "New"}
+            onChange={setF("badge")}
+          >
+            <option value="BestSeller">BestSeller</option>
+            <option value="New">New</option>
+            <option value="Sale">Sale</option>
+          </select>
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <label className={tw.label}>Sizes</label>
+          <input
+            className={tw.input}
+            placeholder="S,M,L"
+            value={(form.sizes || []).join(",")}
+            onChange={(e) =>
+              setForm((f) => ({
+                ...f,
+                sizes: e.target.value
+                  .split(",")
+                  .map((s) => s.trim())
+                  .filter(Boolean),
+              }))
+            }
+          />
+        </div>
+
+        <div className="flex flex-col gap-3">
+          <label className={tw.label}>Variants</label>
+
+          {(form.variants || []).map((v, i) => (
+            <div key={i} className="grid grid-cols-3 gap-2">
+              <input
+                className={tw.input}
+                placeholder="Size"
+                value={v.size}
+                onChange={(e) => {
+                  const arr = [...form.variants];
+                  arr[i].size = e.target.value;
+                  setForm((f) => ({ ...f, variants: arr }));
+                }}
+              />
+              <input
+                className={tw.input}
+                placeholder="Color"
+                value={v.color}
+                onChange={(e) => {
+                  const arr = [...form.variants];
+                  arr[i].color = e.target.value;
+                  setForm((f) => ({ ...f, variants: arr }));
+                }}
+              />
+              <input
+                type="number"
+                className={tw.input}
+                placeholder="Stock"
+                value={v.stock ?? 0}
+                onChange={(e) => {
+                  const arr = [...form.variants];
+                  arr[i].stock = parseInt(e.target.value) || 0;
+                  setForm((f) => ({ ...f, variants: arr }));
+                }}
+              />
+            </div>
+          ))}
+
+          <button
+            type="button"
+            onClick={() =>
+              setForm((f) => ({
+                ...f,
+                variants: [...(f.variants || []), { size: "", color: "", stock: 0 }],
+              }))
+            }
+            className={tw.btnGhost}
+          >
+            + Add Variant
+          </button>
         </div>
 
         {/* imageUrl + preview */}
         <div className="flex flex-col gap-2">
-          <ImageUpload 
+          <ImageUpload
             value={form.imageUrl}
-            onChange={(url, file) => 
+            onChange={(url, file) =>
               setForm((f) => ({
                 ...f,
                 imageUrl: url,
@@ -131,7 +196,7 @@ export default function AdminProductModal({ form, setForm, isEdit, onClose, onSa
               }))
             }
           />
-          
+
         </div>
 
         {/* material + care */}

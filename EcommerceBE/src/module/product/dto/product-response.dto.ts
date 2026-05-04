@@ -29,6 +29,12 @@ export class ProductResponseDto {
     category: string | null;
 
     @ApiProperty({
+        description: 'Product category ID',
+        example: '46545646sds-4584s68sd-4654684sd',
+    })
+    categoryId: string | null;
+
+    @ApiProperty({
         description: 'Product price',
     })
     price: number;

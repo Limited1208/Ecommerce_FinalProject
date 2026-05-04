@@ -262,7 +262,8 @@ export class ProductService {
       name: product.name,
       sku: product.sku,
       stock: product.stock,
-      category: product.category?.name,
+      category: product.category?.name ?? null,
+      categoryId: product.categoryId,
       gender: product.gender,
       status: product.status,
 
